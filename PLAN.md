@@ -36,4 +36,4 @@ Spec files land under `docs/phases/` one at a time in Stage A1, each behind its 
 
 ## Protocol
 
-Stage A1 next: one phase spec per response, each behind its own explicit approval gate; re-evaluate before each spec. Stage B (execution) begins only after every spec is approved and permission to enter is granted. `CURRENT` moves only at approved phase closes.
+Stage A complete: all 12 phase specs individually approved (2026-07-14). Stage B (execution) begins only when the product owner grants explicit permission — not yet granted. Execution is one phase at a time, one step at a time, evidence at every gate; `CURRENT` moves only at approved phase closes.
