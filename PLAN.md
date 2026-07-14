@@ -29,7 +29,7 @@ Spec files land under `docs/phases/` one at a time in Stage A1, each behind its 
 | 5 | Explanation & recommendation layer | Deterministic evidence extraction; action library; constrained placeholder-template narration; exact-match validator; PHI redaction (Tier S/M). | pending | [spec](docs/phases/phase-05-explanation-layer.md) |
 | 6 | Feedback & calibration | Reason-coded dismissals; per-check-per-practice precision; auto-demotion below floor; parameter recalibration job. | pending | [spec](docs/phases/phase-06-feedback-calibration.md) |
 | 7 | Discovery layer | Drift/outlier lane over engineered aggregates; LLM characterization; candidate-check drafting into the review gate; never alerts staff. | pending | [spec](docs/phases/phase-07-discovery-layer.md) |
-| 8 | Evaluation harness | Synthetic anomaly injection on the test copy; recall per check; precision from feedback; versioned gold sets; CI regression gate. | pending | — |
+| 8 | Evaluation harness | Synthetic anomaly injection on the test copy; recall per check; precision from feedback; versioned gold sets; CI regression gate. | pending | [spec](docs/phases/phase-08-evaluation-harness.md) |
 | 9 | API | FastAPI backend: findings queue, lifecycle actions, explanations, check management, review gate; pluggable auth stub. | pending | — |
 | 10 | Triage UI | React UI: queue, evidence view, dismiss-with-reason, check admin, review gate, run dashboard; E2E test through real API. | pending | — |
 | 11 | Production hardening | Real authN/Z, rate limits, observability, deployment artifacts, backup/restore, runbooks, docs, load test against D-011 targets. | pending | — |
