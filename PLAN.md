@@ -25,7 +25,7 @@ Spec files land under `docs/phases/` one at a time in Stage A1, each behind its 
 | 1 | Schema intelligence | Automated profiling of every in-scope view → machine-readable semantic catalog + human-readable report, re-runnable by one command. | pending | [spec](docs/phases/phase-01-schema-intelligence.md) |
 | 2 | Check DSL + compiler | YAML predicate DSL, deterministic compiler to T-SQL over views, three-valued evaluation semantics, golden-SQL tests. | pending | [spec](docs/phases/phase-02-dsl-compiler.md) |
 | 3 | App database + executor | App-DB migrations (checks, findings, feedback, params, runs, audit); incremental watermark execution; dedup/snooze; per-check cost capture. | pending | [spec](docs/phases/phase-03-app-db-executor.md) |
-| 4 | Seed check library | Profiling-derived + LLM-drafted checks through the human review gate; per-practice parameter defaults learned from data. | pending | — |
+| 4 | Seed check library | Profiling-derived + LLM-drafted checks through the human review gate; per-practice parameter defaults learned from data. | pending | [spec](docs/phases/phase-04-seed-check-library.md) |
 | 5 | Explanation & recommendation layer | Deterministic evidence extraction; action library; constrained placeholder-template narration; exact-match validator; PHI redaction (Tier S/M). | pending | — |
 | 6 | Feedback & calibration | Reason-coded dismissals; per-check-per-practice precision; auto-demotion below floor; parameter recalibration job. | pending | — |
 | 7 | Discovery layer | Drift/outlier lane over engineered aggregates; LLM characterization; candidate-check drafting into the review gate; never alerts staff. | pending | — |
