@@ -32,7 +32,7 @@ Spec files land under `docs/phases/` one at a time in Stage A1, each behind its 
 | 8 | Evaluation harness | Synthetic anomaly injection on the test copy; recall per check; precision from feedback; versioned gold sets; CI regression gate. | pending | [spec](docs/phases/phase-08-evaluation-harness.md) |
 | 9 | API | FastAPI backend: findings queue, lifecycle actions, explanations, check management, review gate; pluggable auth stub. | pending | [spec](docs/phases/phase-09-api.md) |
 | 10 | Triage UI | React UI: queue, evidence view, dismiss-with-reason, check admin, review gate, run dashboard; E2E test through real API. | pending | [spec](docs/phases/phase-10-triage-ui.md) |
-| 11 | Production hardening | Real authN/Z, rate limits, observability, deployment artifacts, backup/restore, runbooks, docs, load test against D-011 targets. | pending | — |
+| 11 | Production hardening | Real authN/Z, rate limits, observability, deployment artifacts, backup/restore, runbooks, docs, load test against D-011 targets. | pending | [spec](docs/phases/phase-11-production-hardening.md) |
 
 ## Protocol
 
