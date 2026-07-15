@@ -5,8 +5,9 @@
 
 ## Current phase
 
-**Phase 0 — Environment & access verification** (Stage B execution; spec: `docs/phases/phase-00-environment-access.md`).
-Steps 1–8 of 8 complete. All 8 exit criteria have supporting evidence, **criterion-4 caveat now cleared** (see below) — **Phase 0 exit itself has not been declared**; that is a phase-boundary decision reserved for explicit product-owner approval, not taken unilaterally here.
+**Phase 0 — Environment & access verification: EXITED (2026-07-15, product-owner declared).** All 8 steps complete, all 7 exit criteria cleanly met (criterion-4's `dbo.TimeLine` caveat resolved by re-run, no code change). Spec: `docs/phases/phase-00-environment-access.md`.
+
+**Phase 1 — Schema intelligence is now CURRENT** (index pointer only — spec: `docs/phases/phase-01-schema-intelligence.md`). No step 1 work has started; per the stop-and-wait rule, the first step still needs its own explicit go-ahead before any code/commands begin.
 
 ## Last completed work (2026-07-15, criterion-4 re-run)
 
@@ -47,18 +48,17 @@ Earlier the same day: steps 1–6 (scaffolding; config loader; audited SQL-guard
 
 ## Current milestone
 
-**Phase 0 exit** — all 8 steps done; D-001 sign-off recorded. All 7 exit criteria now cleanly verified — criterion 4's `dbo.TimeLine` caveat cleared by the re-run above (0 indeterminate rows). Declaring the phase formally exited is still a product-owner decision, not yet taken.
+**Phase 0 exited (2026-07-15)**; Phase 1 (schema intelligence) is the new milestone target — spec already approved in Stage A, execution not yet started.
 
 ## Current blockers
 
 | ID | Blocker | Blocks |
 |----|---------|--------|
-| — | Formal Phase 0 exit declaration — all criteria now clean; awaiting product-owner sign-off | Phase 1 start |
+| — | Phase 1 step 1 explicit go-ahead — Phase 1 is CURRENT but no step has been authorized to start | Phase 1 execution |
 | — | Repo visibility: currently public, user confirmed pushing anyway; still worth flipping to private manually when convenient | none (accepted) |
-| — | Local commit `8ccab9e` (doc updates recording the GitHub push) not yet pushed to `origin` | none — awaiting push confirmation |
 
 Non-blocking housekeeping: stray untracked file `echo` (0-byte, accidental) still sits in the repo root, deliberately excluded from git — safe to delete whenever, or leave.
 
 ## Next task
 
-Criterion-4 caveat resolved by re-run (2026-07-15) — no timeout, no code change needed. Resume by: (a) product-owner sign-off declaring Phase 0 formally exited (all 7 criteria now clean), (b) confirming whether to push commit `8ccab9e` + the new env-report artifacts, (c) deciding whether to flip the GitHub repo to private, or (d) whatever the product owner directs next. See `SESSION.md` → "Resume here" for full detail.
+Phase 0 exited 2026-07-15 (product-owner declared, all 7 criteria clean). Phase 1 (schema intelligence) is CURRENT but not started — per Gated planning / stop-and-wait, the re-evaluation step and step 1 need their own explicit go-ahead before any code or commands begin. See `SESSION.md` → "Resume here" for full detail.

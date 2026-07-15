@@ -4,6 +4,22 @@
 
 ---
 
+## Session 2026-07-15 (f) — Phase 0 formally exited; Phase 1 is CURRENT
+
+### Resume here
+
+1. **Phase 0 is formally exited** — product-owner declaration, all 7 exit criteria clean (criterion 4 resolved in session (e)). `PLAN.md` and `PROJECT_STATE.md` updated: Phase 1 (schema intelligence) is now the `CURRENT` index pointer.
+2. **Phase 1 execution has NOT started.** Per Gated planning / stop-and-wait discipline, moving the `CURRENT` pointer is not the same as authorizing work — the phase-1 spec's re-evaluation step and step 1 both need their own explicit go-ahead before any code or commands begin.
+3. All work through this point (criterion-4 resolution + exit declaration) is committed and pushed to `origin/main`.
+
+### What was done
+
+- `PLAN.md`: Phase 0 status → `exited 2026-07-15`; Phase 1 status → `CURRENT`.
+- `PROJECT_STATE.md`: current-phase, milestone, blockers, and next-task sections rewritten to reflect the exit + new CURRENT phase.
+- Committed and pushed to GitHub (`origin/main`).
+
+---
+
 ## Session 2026-07-15 (e) — Criterion-4 caveat resolved (dbo.TimeLine re-run)
 
 ### Resume here

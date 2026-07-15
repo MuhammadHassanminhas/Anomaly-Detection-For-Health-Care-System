@@ -20,8 +20,8 @@ Spec files land under `docs/phases/` one at a time in Stage A1, each behind its 
 
 | # | Phase | Objective | Status | Spec |
 |---|-------|-----------|--------|------|
-| 0 | Environment & access verification | Scripted read-only connection; enumerate visible views and reconcile against the 56 export names; capture SQL Server version, row counts, watermark candidates; emit environment report. | **CURRENT** | [spec](docs/phases/phase-00-environment-access.md) |
-| 1 | Schema intelligence | Automated profiling of every in-scope view → machine-readable semantic catalog + human-readable report, re-runnable by one command. | pending | [spec](docs/phases/phase-01-schema-intelligence.md) |
+| 0 | Environment & access verification | Scripted read-only connection; enumerate visible views and reconcile against the 56 export names; capture SQL Server version, row counts, watermark candidates; emit environment report. | **exited** 2026-07-15 | [spec](docs/phases/phase-00-environment-access.md) |
+| 1 | Schema intelligence | Automated profiling of every in-scope view → machine-readable semantic catalog + human-readable report, re-runnable by one command. | **CURRENT** | [spec](docs/phases/phase-01-schema-intelligence.md) |
 | 2 | Check DSL + compiler | YAML predicate DSL, deterministic compiler to T-SQL over views, three-valued evaluation semantics, golden-SQL tests. | pending | [spec](docs/phases/phase-02-dsl-compiler.md) |
 | 3 | App database + executor | App-DB migrations (checks, findings, feedback, params, runs, audit); incremental watermark execution; dedup/snooze; per-check cost capture. | pending | [spec](docs/phases/phase-03-app-db-executor.md) |
 | 4 | Seed check library | Profiling-derived + LLM-drafted checks through the human review gate; per-practice parameter defaults learned from data. | pending | [spec](docs/phases/phase-04-seed-check-library.md) |
