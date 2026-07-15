@@ -34,7 +34,7 @@ Earlier the same day: steps 1–6 (scaffolding; config loader; audited SQL-guard
 
 ## Current branch
 
-`master` — Phase 0 code (`pyproject.toml`, `src/`, `tests/`, `scripts/`, `uv.lock`, `.env.example`) is **not yet committed**. Doc restructure complete (2026-07-15): `CLAUDE.md`, `PROJECT_STATE.md`, `ARCHITECTURE.md` (reshaped into Diagrams/Components/APIs/Dependencies), `DECISIONS.md` (ADR-style, index table added), `SESSION.md` (format-reviewed) — all 5 of 5 files done. See `SESSION.md` → "Resume here".
+`main` (renamed from `master`) — all Phase 0 code + docs **committed** (`cdc0652`, 2026-07-15) and **pushed** to `origin` = `https://github.com/MuhammadHassanminhas/Anomaly-Detection-For-Health-Care-System`. **Repo is public**, not private — no `gh` CLI / GitHub MCP available on this machine to flip visibility; user explicitly confirmed pushing while public rather than waiting. Repo contains real infra details (source DB internal IP `192.168.0.9`, full schema/column names, connection config) — visibility change to private is manual, on github.com, Settings → General → Danger Zone. `echo` (0-byte stray file) and `.coverage` were deliberately excluded from the commit (`.coverage` now gitignored); `graphify-out/` also gitignored (tool cache, not project work). Doc restructure complete (2026-07-15): `CLAUDE.md`, `PROJECT_STATE.md`, `ARCHITECTURE.md` (reshaped into Diagrams/Components/APIs/Dependencies), `DECISIONS.md` (ADR-style, index table added), `SESSION.md` (format-reviewed) — all 5 of 5 files done. See `SESSION.md` → "Resume here".
 
 ## Current milestone
 
@@ -45,9 +45,10 @@ Earlier the same day: steps 1–6 (scaffolding; config loader; audited SQL-guard
 | ID | Blocker | Blocks |
 |----|---------|--------|
 | — | Formal Phase 0 exit declaration — awaiting product-owner review of the exit-criteria checklist (incl. the criterion-4 caveat) | Phase 1 start |
+| — | Repo visibility: currently public, user confirmed pushing anyway; still worth flipping to private manually when convenient | none (accepted) |
 
-Non-blocking housekeeping: stray untracked files `echo` and `.coverage` in repo root (flagged 2026-07-14; `.coverage` should be gitignored, `echo` looks accidental — awaiting owner decision). All Phase 0 code + docs remain uncommitted on `master`.
+Non-blocking housekeeping: stray untracked file `echo` (0-byte, accidental) still sits in the repo root, deliberately excluded from git — safe to delete whenever, or leave.
 
 ## Next task
 
-Awaiting direction: (a) product-owner review/declaration of Phase 0 exit (with a ruling on the criterion-4 audit-gap caveat — accept as-is, or authorize a fix to `AuditedSourceConnection.execute_query()` to audit failed/timed-out statements too), (b) the commit decision for all uncommitted Phase 0 work, or (c) something else the product owner directs.
+Session ended 2026-07-15 after pushing all committed work to GitHub. Resume by: (a) product-owner review/declaration of Phase 0 exit (with a ruling on the criterion-4 audit-gap caveat — accept as-is, or authorize a fix to `AuditedSourceConnection.execute_query()` to audit failed/timed-out statements too), (b) deciding whether to flip the GitHub repo to private, or (c) whatever the product owner directs next. See `SESSION.md` → "Resume here" for full detail.

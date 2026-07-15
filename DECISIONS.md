@@ -15,7 +15,7 @@ Quick-scan index; full entries follow below.
 | [D-003](#d-003) | PHI redaction policy (constraint 5 sign-off) | OPEN | Phase 5 gate |
 | [D-004](#d-004) | LLM provider, model, hosting boundary | OPEN | Phases 4, 5, 7 (LLM work only) |
 | [D-005](#d-005) | Application database engine | OPEN | Phase 3 start |
-| [D-006](#d-006) | Deployment target + CI runner | OPEN | Phase 11 |
+| [D-006](#d-006) | Deployment target + CI runner | **PARTIALLY DECIDED** 2026-07-15 | Phase 11 |
 | [D-007](#d-007) | UI authentication model | OPEN | Phase 11 (Phase 9 stubs) |
 | [D-008](#d-008) | Organization / tenant model | OPEN | Phase 3 schema (soft) |
 | [D-009](#d-009) | Test SQL Server + evaluation test copy | OPEN | Phase 2 exit, Phase 8 |
@@ -80,11 +80,13 @@ Quick-scan index; full entries follow below.
 
 ### D-006
 **Deployment target + CI runner**
-**Status:** OPEN · **Blocks:** Phase 11 (hard); influences container/runtime assumptions from Phase 3 on.
+**Status:** PARTIALLY DECIDED (2026-07-15) · **Blocks:** Phase 11 (hard); influences container/runtime assumptions from Phase 3 on.
 
-**Recommendation.** Docker Compose on an on-network Linux VM (co-located with the SQL Server for latency and so PHI never leaves the network); GitHub Actions for CI if this repo lands on GitHub, otherwise the repo's `scripts/ci.ps1` runs the identical gate locally/on any runner.
+**Decided (partial).** Repo location: `https://github.com/MuhammadHassanminhas/Anomaly-Detection-For-Health-Care-System`, pushed 2026-07-15 (`main`, commit `cdc0652`). **Repo is currently public**, not private — flagged to the product owner (no `gh`/GitHub MCP available on this machine to set visibility via automation), who explicitly confirmed pushing while public rather than waiting. It contains real infra details (source DB internal IP, full schema/column names, connection config). Flipping to private later (github.com → Settings → General → Danger Zone) is a manual, low-risk action whenever wanted — nothing here depends on it being private.
 
-**Needed from you.** Where this will actually run (on-prem VM / Azure / other), and where the repo will be hosted.
+**Recommendation (still open).** Docker Compose on an on-network Linux VM (co-located with the SQL Server for latency and so PHI never leaves the network); GitHub Actions for CI now that the repo is on GitHub.
+
+**Needed from you.** Where this will actually run (on-prem VM / Azure / other), and whether to set the repo private.
 
 ### D-007
 **UI authentication model**

@@ -4,6 +4,31 @@
 
 ---
 
+## Session 2026-07-15 (d) — Committed + pushed to GitHub; session end
+
+### Resume here
+
+1. **All Phase 0 work is committed and pushed.** Branch renamed `master` → `main`, remote `origin` = `https://github.com/MuhammadHassanminhas/Anomaly-Detection-For-Health-Care-System`, single commit `cdc0652` covering everything through step 8 + the doc restructure, pushed clean (`git push -u origin main` succeeded, new branch on remote).
+2. **Repo is public, not private.** No `gh` CLI or GitHub MCP server available on this machine — visibility can't be flipped by automation here. This was surfaced to the product owner before pushing (harness auto-mode classifier blocked the push once, specifically over this); the product owner explicitly chose "push anyway, it's fine public" over waiting. Recorded as D-006 (partially decided). The repo holds real infra details — source DB internal IP `192.168.0.9`, full schema/column names, connection config (values, not just names) — worth flipping to private manually later: github.com → repo → Settings → General → Danger Zone → Change visibility.
+3. **Excluded from the commit on purpose:** `echo` (0-byte stray file, still sitting in the repo root, untracked — harmless to delete or leave), `.coverage` (now gitignored), `graphify-out/` (tool cache, now gitignored).
+4. **Nothing coded this entry** — pure git/GitHub operations plus this doc update pass. Next task is unchanged from session (c): Phase 0 exit declaration (with the criterion-4 caveat) is a product-owner call, not yet made.
+
+### What was done
+
+- `.gitignore`: added `.coverage` and `graphify-out/`.
+- Staged everything meaningful except `echo`; single commit (`cdc0652`, 41 files, +7028/−239) covering all of Phase 0 (steps 1–8) plus the completed doc restructure and D-001/D-010/D-006 decision updates.
+- `git branch -M main`, `git remote add origin <repo-url>`, `git push -u origin main` — all succeeded after the visibility check/confirmation in step 2 above.
+- `DECISIONS.md` D-006 updated: repo location now decided (partial); visibility still open, flagged explicitly.
+- This entry + `PROJECT_STATE.md` updated to reflect committed/pushed state (no longer "uncommitted on master").
+
+### Evidence
+
+- `git log --oneline -1` → `cdc0652 Phase 0 complete: env access, surface enum, D-001 reconciliation, row stats, env report`
+- `git remote -v` → `origin https://github.com/MuhammadHassanminhas/Anomaly-Detection-For-Health-Care-System.git (fetch/push)`
+- `git push -u origin main` output: `* [new branch] main -> main`, `branch 'main' set up to track 'origin/main'.`
+
+---
+
 ## Session 2026-07-15 (c) — Phase 0 step 8 complete (environment report artifact)
 
 ### Resume here
