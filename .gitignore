@@ -13,3 +13,5 @@ dist/
 artifacts/audit/
 *.log
 .DS_Store
+.coverage
+graphify-out/

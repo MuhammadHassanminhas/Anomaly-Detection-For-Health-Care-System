@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cdss.internal/schemas/env-report.schema.json",
+  "title": "CDSS Phase 0 environment report",
+  "type": "object",
+  "required": ["generated_at", "database", "surface", "reconciliation", "row_stats"],
+  "additionalProperties": false,
+  "properties": {
+    "generated_at": { "type": "string" },
+    "database": {
+      "type": "object",
+      "required": ["version_string", "product_version", "edition", "engine_edition", "database_name"],
+      "additionalProperties": false,
+      "properties": {
+        "version_string": { "type": "string" },
+        "product_version": { "type": "string" },
+        "edition": { "type": "string" },
+        "engine_edition": { "type": "string" },
+        "database_name": { "type": "string" }
+      }
+    },
+    "surface": {
+      "type": "object",
+      "required": ["total_objects", "views", "tables", "other"],
+      "additionalProperties": false,
+      "properties": {
+        "total_objects": { "type": "integer", "minimum": 0 },
+        "views": { "type": "integer", "minimum": 0 },
+        "tables": { "type": "integer", "minimum": 0 },
+        "other": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "reconciliation": {
+      "type": "object",
+      "required": ["export_object_count", "entries", "extra_objects"],
+      "additionalProperties": false,
+      "properties": {
+        "export_object_count": { "type": "integer", "minimum": 0 },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["export_name", "status", "matched_object"],
+            "additionalProperties": false,
+            "properties": {
+              "export_name": { "type": "string" },
+              "status": {
+                "enum": ["found_as_view", "found_as_table", "found_as_other", "missing"]
+              },
+              "matched_object": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "extra_objects": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "row_stats": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "qualified_name",
+          "object_type",
+          "row_count",
+          "row_count_status",
+          "duration_ms",
+          "watermark_columns"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "qualified_name": { "type": "string" },
+          "object_type": { "enum": ["view", "table", "other"] },
+          "row_count": { "type": ["integer", "null"], "minimum": 0 },
+          "row_count_status": { "enum": ["exact", "approximate", "indeterminate"] },
+          "duration_ms": { "type": "number", "minimum": 0 },
+          "watermark_columns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["column_name", "data_type", "min_value", "max_value"],
+              "additionalProperties": false,
+              "properties": {
+                "column_name": { "type": "string" },
+                "data_type": { "type": "string" },
+                "min_value": { "type": ["string", "null"] },
+                "max_value": { "type": ["string", "null"] }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,7 +2,6 @@
 
 ## Open questions (full text in DECISIONS.md)
 
-- **D-001** — Are the 56 exported objects the provided views? *(blocks Phase 0 exit)*
 - **D-002** — Source connection details + SQL Server version *(blocks Phase 0 start)*
 - **D-003** — PHI redaction policy sign-off *(blocks Phase 5 gate)*
 - **D-004** — LLM provider/model/hosting boundary *(blocks LLM work in Phases 4/5/7)*
@@ -11,7 +10,7 @@
 - **D-007** — UI authentication model *(blocks Phase 11; Phase 9 stubs)*
 - **D-008** — Practice/tenant model confirmation *(soft-blocks Phase 3 schema)*
 - **D-009** — Test SQL Server (fixtures) + mutable test copy *(blocks Phase 2 exit, Phase 8)*
-- **D-010** — Scope exclusions (`AIFinanceAssistant.tblSalary`) *(input to Phase 1)*
+- **D-010** — Scope exclusions (finance aggregates beyond the D-001 exclusions) *(input to Phase 1)*
 - **D-011** — Operating parameters: cadence, retention, precision floor, load targets *(confirm by Phase 8 gate)*
 
 ## Phases

@@ -23,7 +23,7 @@ Turn findings into staff-facing narratives and recommended actions under F8's co
    *Deliverable:* cache + test: N findings of one check ⇒ 1 LLM call; version bump ⇒ exactly 1 more.
 6. **Redaction-boundary proof.** Record every outbound LLM payload (dev/test mode); assert none contains: any evidence *value*, any entity key, any string matching live identifier patterns (NHI format, names from fixture data). Combined with step 3 this is the constraint-5 evidence package for your D-003 sign-off.
    *Deliverable:* boundary test suite green; a short `docs/phi-boundary.md` summarizing what leaves the process in each tier, for sign-off.
-7. **End-to-end narration run.** `scripts/run.ps1` extended: new findings from a fixture run get narratives inline (§4.5 of ARCHITECTURE.md); run report gains narration stats (composed, cached, blocked, fallback).
+7. **End-to-end narration run.** `scripts/run.ps1` extended: new findings from a fixture run get narratives inline (ARCHITECTURE.md §2.6); run report gains narration stats (composed, cached, blocked, fallback).
    *Deliverable:* fixture run where every new finding ends with a rendered, validated narrative or an explicit fallback.
 
 ## Exit criteria

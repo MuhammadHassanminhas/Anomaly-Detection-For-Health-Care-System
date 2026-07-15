@@ -48,4 +48,4 @@ python -m cdss.discovery list --status new
 - **Signal quality is deliberately not a product goal:** the queue is internal (F9); noisy detectors cost triage time, not staff trust. Tuning thresholds is config work informed by the queue itself.
 - **LLM characterization may mislabel a pattern:** it only ever produces a *draft check with lineage* that you review at the gate with fixture tests required (Phase 4 rules apply unchanged).
 - **Depends on:** Phases 3–6; D-004 for steps 4–5.
-- New migration (`discovery_aggregates`) extends the Phase 3 schema — versioned Alembic migration, no `DECISIONS.md` entry needed (additive, within ARCHITECTURE.md §9's stated design).
+- New migration (`discovery_aggregates`) extends the Phase 3 schema — versioned Alembic migration, no `DECISIONS.md` entry needed (additive, within ARCHITECTURE.md §2.8's stated design).

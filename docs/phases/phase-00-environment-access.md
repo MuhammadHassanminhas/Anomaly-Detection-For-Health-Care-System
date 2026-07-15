@@ -6,7 +6,7 @@ Prove scripted, audited, read-only access to `INDICI_BI_Full`; enumerate the vie
 
 ## Preconditions
 
-- D-002 delivered: host/port, auth method, credentials — consumed **only** from environment variables (`CDSS_SOURCE_HOST`, `CDSS_SOURCE_PORT`, `CDSS_SOURCE_DB`, `CDSS_SOURCE_USER`, `CDSS_SOURCE_PASSWORD`, `CDSS_SOURCE_ENCRYPT`); a gitignored `.env` + committed `.env.example`.
+- D-002 delivered (2026-07-14: host `192.168.0.9`, port `1433`, Windows/Integrated Authentication): consumed **only** from environment variables — `CDSS_SOURCE_HOST`, `CDSS_SOURCE_PORT`, `CDSS_SOURCE_DB`, `CDSS_SOURCE_AUTH` (`windows`|`sql`), `CDSS_SOURCE_ENCRYPT`, `CDSS_SOURCE_TRUST_SERVER_CERTIFICATE` always required; `CDSS_SOURCE_USER`/`CDSS_SOURCE_PASSWORD` required only when `CDSS_SOURCE_AUTH=sql`. Gitignored `.env` + committed `.env.example`.
 - Python 3.12+, ODBC Driver 18, `pyodbc` installable on this machine (D-014).
 
 ## Steps (one deliverable each; TDD — failing test first for every behavior)
