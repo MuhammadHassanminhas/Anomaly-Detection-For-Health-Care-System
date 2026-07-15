@@ -6,57 +6,17 @@
     "product_version": "15.0.4460.4",
     "version_string": "Microsoft SQL Server 2019 (RTM-CU32-GDR) (KB5077469) - 15.0.4460.4 (X64) \n\tFeb 13 2026 17:00:40 \n\tCopyright (C) 2019 Microsoft Corporation\n\tDeveloper Edition (64-bit) on Windows Server 2019 Standard 10.0 <X64> (Build 17763: )\n"
   },
-  "generated_at": "2026-07-15T05:43:37.927050+00:00",
+  "generated_at": "2026-07-15T11:41:20.635648+00:00",
   "reconciliation": {
     "entries": [
       {
-        "export_name": "dbo.ServiceTemplate",
-        "matched_object": "dbo.ServiceTemplate",
+        "export_name": "dbo.AppointmentMedications",
+        "matched_object": "dbo.AppointmentMedications",
         "status": "found_as_view"
       },
       {
-        "export_name": "dbo.Addresses",
-        "matched_object": "dbo.Addresses",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.HTIReferral",
-        "matched_object": "dbo.HTIReferral",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.OutStandingBalance",
-        "matched_object": "dbo.OutStandingBalance",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.PatientContact",
-        "matched_object": "dbo.PatientContact",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.PendingFinishCounsult",
-        "matched_object": "dbo.PendingFinishCounsult",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.MedicineBrand",
-        "matched_object": "dbo.MedicineBrand",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.InboxDetail",
-        "matched_object": "dbo.InboxDetail",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.LabRad",
-        "matched_object": "dbo.LabRad",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.Recalls",
-        "matched_object": "dbo.Recalls",
+        "export_name": "dbo.Disease",
+        "matched_object": "dbo.Disease",
         "status": "found_as_view"
       },
       {
@@ -65,63 +25,23 @@
         "status": "found_as_view"
       },
       {
+        "export_name": "fqb.Allergies",
+        "matched_object": "fqb.Allergies",
+        "status": "found_as_view"
+      },
+      {
+        "export_name": "fqb.Diagnosis",
+        "matched_object": "fqb.Diagnosis",
+        "status": "found_as_view"
+      },
+      {
         "export_name": "dbo.Immunisation",
         "matched_object": "dbo.Immunisation",
         "status": "found_as_view"
       },
       {
-        "export_name": "dbo.Appointments",
-        "matched_object": "dbo.Appointments",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.Diagnosis",
-        "matched_object": "dbo.Diagnosis",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.Payments",
-        "matched_object": "dbo.Payments",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.InBox",
-        "matched_object": "dbo.InBox",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.HBA1cResult",
-        "matched_object": "dbo.HBA1cResult",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.AppointmentMedications",
-        "matched_object": "dbo.AppointmentMedications",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.Measurements",
-        "matched_object": "dbo.Measurements",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.ImmunisationSchedule",
-        "matched_object": "dbo.ImmunisationSchedule",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.AppointmentsSlots",
-        "matched_object": "dbo.AppointmentsSlots",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.TransactionHistory",
-        "matched_object": "dbo.TransactionHistory",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.TimeLine",
-        "matched_object": "dbo.TimeLine",
+        "export_name": "OLAP.Medicine",
+        "matched_object": "OLAP.Medicine",
         "status": "found_as_view"
       },
       {
@@ -130,158 +50,19 @@
         "status": "found_as_view"
       },
       {
-        "export_name": "dbo.MeasurementServiceTemplateDetail",
-        "matched_object": "dbo.MeasurementServiceTemplateDetail",
+        "export_name": "fqb.invoices",
+        "matched_object": "fqb.Invoices",
         "status": "found_as_view"
       },
       {
-        "export_name": "dbo.PatientEthnicity",
-        "matched_object": "dbo.PatientEthnicity",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.Provider",
-        "matched_object": "dbo.Provider",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.PatientTask",
-        "matched_object": "dbo.PatientTask",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.PatientAccountAge",
-        "matched_object": "dbo.PatientAccountAge",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.LettersAndDocuments",
-        "matched_object": "dbo.LettersAndDocuments",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.PatientContactMethod",
-        "matched_object": "dbo.PatientContactMethod",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.NESEnrolment",
-        "matched_object": "dbo.NESEnrolment",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.NextOfKin",
-        "matched_object": "dbo.NextOfKin",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.Claims",
-        "matched_object": "dbo.Claims",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.PortalRecievedMessages",
-        "matched_object": "dbo.PortalRecievedMessages",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.QuickConsult",
-        "matched_object": "dbo.QuickConsult",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.ACC18",
-        "matched_object": "dbo.ACC18",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.PatientPortalMenu",
-        "matched_object": "dbo.PatientPortalMenu",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.Accidents",
-        "matched_object": "dbo.Accidents",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.Company",
-        "matched_object": "dbo.Company",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.Roster",
-        "matched_object": "dbo.Roster",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.outbox",
-        "matched_object": "dbo.OutBox",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.allergies",
-        "matched_object": "dbo.Allergies",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.careplan",
-        "matched_object": "dbo.CarePlan",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.refund",
-        "matched_object": "dbo.Refund",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.accconsumabledetail",
-        "matched_object": "dbo.ACCConsumableDetail",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.referralpatient",
-        "matched_object": "dbo.ReferralPatient",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.agedbalancesummaryreportmonthly",
-        "matched_object": "dbo.AgedBalanceSummaryReportMonthly",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.triagetemplate",
-        "matched_object": "dbo.TriageTemplate",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.appointmentmaternity",
-        "matched_object": "dbo.AppointmentMaternity",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.NewAppointmentServices",
-        "matched_object": "dbo.NewAppointmentServices",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.InvoiceDetail",
-        "matched_object": "dbo.InvoiceDetail",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.Invoices",
-        "matched_object": "dbo.Invoices",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "AIFinanceAssistant.VU_PracticeTotalExpenses",
-        "matched_object": "AIFinanceAssistant.VU_PracticeTotalExpenses",
+        "export_name": "dbo.Appointments",
+        "matched_object": "dbo.Appointments",
         "status": "found_as_view"
       }
     ],
-    "export_object_count": 54,
+    "export_object_count": 10,
     "extra_objects": [
+      "AIFinanceAssistant.VU_PracticeTotalExpenses",
       "AIFinanceAssistant.tblAIDashboards",
       "AIFinanceAssistant.tblAIWidgetTypes",
       "AIFinanceAssistant.tblAIWidgets",
@@ -1159,7 +940,6 @@
       "OLAP.Ethnicity",
       "OLAP.Gender",
       "OLAP.MedicationDiagnosis",
-      "OLAP.Medicine",
       "OLAP.MedicineDurationType",
       "OLAP.MedicineForm",
       "OLAP.MedicineFrequency",
@@ -2284,8 +2064,12 @@
       "Voucher.tblCampaignInvoice",
       "Voucher.tblVoucherInvoice",
       "Voucher.tblVouchers",
+      "dbo.ACC18",
+      "dbo.ACCConsumableDetail",
       "dbo.ACCReportingServiceTemplate",
+      "dbo.Accidents",
       "dbo.Accidents_BAK",
+      "dbo.Addresses",
       "dbo.AdvanceForm",
       "dbo.AdvanceFormDetail",
       "dbo.AdvanceForm_4WeekSmokingStatus",
@@ -2307,8 +2091,11 @@
       "dbo.AdvanceForm_WellChild_TamarikiOra2019",
       "dbo.AdvanceForm_WellChild_TamarikiOra2019_NgatiRuanuiHealthcare",
       "dbo.AgeGroup",
+      "dbo.AgedBalanceSummaryReportMonthly",
       "dbo.AlertType",
+      "dbo.Allergies",
       "dbo.Allergies_BAK",
+      "dbo.AppointmentMaternity",
       "dbo.AppointmentMedications_BAK",
       "dbo.AppointmentOutCome",
       "dbo.AppointmentReason",
@@ -2317,8 +2104,10 @@
       "dbo.AppointmentSlots",
       "dbo.AppointmentStatus",
       "dbo.AppointmentType",
+      "dbo.AppointmentsSlots",
       "dbo.Appointments_BAK",
       "dbo.BookingSource",
+      "dbo.CarePlan",
       "dbo.CarePlanActivities",
       "dbo.CarePlanDiagnosis",
       "dbo.CarePlanGoal",
@@ -2326,6 +2115,8 @@
       "dbo.CarePlanGoalJob",
       "dbo.CarePlanMember",
       "dbo.CityArea",
+      "dbo.Claims",
+      "dbo.Company",
       "dbo.ConsultSlots",
       "dbo.ConsultationSummaryTemplateData",
       "dbo.ConsultationSummaryV2TemplateData",
@@ -2337,6 +2128,7 @@
       "dbo.DNRegistration",
       "dbo.DNStomalAssessment",
       "dbo.DetailPatientDiagnosisTemplate",
+      "dbo.Diagnosis",
       "dbo.DiagnosisPerf",
       "dbo.DiagnosisType",
       "dbo.Diagnosis_Adeel",
@@ -2347,9 +2139,9 @@
       "dbo.DimTime",
       "dbo.Discharge",
       "dbo.DischargedPatient",
-      "dbo.Disease",
       "dbo.Ethnicity",
       "dbo.FundingStatusHistory",
+      "dbo.HBA1cResult",
       "dbo.HPSData_BodyCompositionAnthropometry",
       "dbo.HPSData_BodyCompositionEnergyIntake",
       "dbo.HPSData_BodyCompositionSkinFoldSum",
@@ -2410,6 +2202,7 @@
       "dbo.HPSDiagnosisHRIIssueDetail",
       "dbo.HPSFormSummary",
       "dbo.HTIRefeerralOutcome",
+      "dbo.HTIReferral",
       "dbo.HTIReferralAudit",
       "dbo.HTIReferralDetail",
       "dbo.HTIReferralOutcome",
@@ -2417,19 +2210,26 @@
       "dbo.IPUHomeLeave",
       "dbo.IPUPatientAdmission",
       "dbo.ImmunisationNIRInline",
+      "dbo.ImmunisationSchedule",
       "dbo.ImmunisationSchedule_BAK",
       "dbo.ImmunisationSchedule_BK_20200519",
       "dbo.Immunisation_BAK",
       "dbo.Immunisation_BK_20200519",
+      "dbo.InBox",
       "dbo.InBox_BAK",
+      "dbo.InboxDetail",
       "dbo.InboxDetail_BAK",
+      "dbo.InvoiceDetail",
       "dbo.InvoiceTransactionDetail",
+      "dbo.Invoices",
       "dbo.JTest",
       "dbo.KHWGTemplateData",
       "dbo.Keyword",
       "dbo.LDHBSTDClinicData",
       "dbo.LabOrder",
+      "dbo.LabRad",
       "dbo.Lab_Test",
+      "dbo.LettersAndDocuments",
       "dbo.MPN2TemplateData",
       "dbo.MYDNAPatientDiagnosticGenoType",
       "dbo.MYDNAPatientDiagnosticMedication",
@@ -2449,28 +2249,40 @@
       "dbo.MasterSubService",
       "dbo.MeasurementDetail",
       "dbo.MeasurementDetail_BAK",
+      "dbo.MeasurementServiceTemplateDetail",
+      "dbo.Measurements",
       "dbo.Measurements_BAK",
       "dbo.MedicationDiagnosis",
       "dbo.MedicationDiagnosis_BAK",
       "dbo.MedicationStandingOrder",
       "dbo.Medicine",
+      "dbo.MedicineBrand",
       "dbo.MedicineSubstance",
       "dbo.MyDNADiagnosticReport",
       "dbo.MyDNADiagnosticReportNotifications",
       "dbo.NBPHPatientPool",
+      "dbo.NESEnrolment",
       "dbo.NZFMedications",
+      "dbo.NewAppointmentServices",
+      "dbo.NextOfKin",
       "dbo.OneRecordedVaccine",
+      "dbo.OutBox",
       "dbo.OutBox_BAK",
+      "dbo.OutStandingBalance",
       "dbo.OutboxDetail",
       "dbo.OutboxDetail_BAK",
       "dbo.PODPatient",
       "dbo.PalliativeCareTemplateData",
       "dbo.ParkedDocuments",
+      "dbo.PatientAccountAge",
       "dbo.PatientAlerts_Adeel",
       "dbo.PatientAlerts_BAK",
+      "dbo.PatientContact",
       "dbo.PatientContactChannel",
+      "dbo.PatientContactMethod",
       "dbo.PatientDiagnosisTemplate",
       "dbo.PatientDiagnosisTemplateDetail",
+      "dbo.PatientEthnicity",
       "dbo.PatientHistoryNotes",
       "dbo.PatientInitialDataMappingUniversity",
       "dbo.PatientInsurance",
@@ -2478,6 +2290,7 @@
       "dbo.PatientIwi",
       "dbo.PatientPOD",
       "dbo.PatientPortalEmail",
+      "dbo.PatientPortalMenu",
       "dbo.PatientPrescriptionOrderReport",
       "dbo.PatientPrescriptionsOrder",
       "dbo.PatientPrompts",
@@ -2485,6 +2298,7 @@
       "dbo.PatientSARecord",
       "dbo.PatientSMS",
       "dbo.PatientStatement_MonthlyAgedBalanceSummaryReport",
+      "dbo.PatientTask",
       "dbo.PatientTask_BAK",
       "dbo.PatientTemplateDetail",
       "dbo.Patient_20170825_new",
@@ -2496,7 +2310,10 @@
       "dbo.Patient_ZD20211014",
       "dbo.Patient_bk_20170825",
       "dbo.PatientsPrescriptionOrderDetails",
+      "dbo.Payments",
+      "dbo.PendingFinishCounsult",
       "dbo.PortalAccountLink",
+      "dbo.PortalRecievedMessages",
       "dbo.Practice",
       "dbo.PracticeDashboardProviders",
       "dbo.PracticeDashboardProvidersLocations",
@@ -2507,26 +2324,33 @@
       "dbo.ProfileLanguage",
       "dbo.Profile_tblEmployer_INDI_16204",
       "dbo.Profile_tblProfile_INDI_16204",
+      "dbo.Provider",
       "dbo.ProviderLocation",
       "dbo.ProviderTask",
       "dbo.ProviderTask_BAK",
+      "dbo.QuickConsult",
       "dbo.QuickConsultHistory",
       "dbo.ReCallContact",
       "dbo.ReasonForContactSubService",
       "dbo.ReasonforVisit",
+      "dbo.Recalls",
       "dbo.Recalls_BAK",
       "dbo.Recalls_tblBak",
       "dbo.ReferralGroup",
       "dbo.ReferralGroupPatient",
       "dbo.ReferralGroupSession",
+      "dbo.ReferralPatient",
       "dbo.ReferralPatientAppointment",
       "dbo.ReferralPatientOutCome",
+      "dbo.Refund",
       "dbo.RepeatPhoneScripts",
       "dbo.RespiratoryReferral",
+      "dbo.Roster",
       "dbo.SCTID_ISI24553",
       "dbo.SCTID_ISI24553_Final",
       "dbo.ScheduleSlots",
       "dbo.ScreeningType",
+      "dbo.ServiceTemplate",
       "dbo.Services",
       "dbo.SexualHealthDailyTallyReport",
       "dbo.SexualHealthTemplateData",
@@ -2540,8 +2364,11 @@
       "dbo.TaskActivity",
       "dbo.TaskStatus",
       "dbo.TaskType",
+      "dbo.TimeLine",
       "dbo.TimeLine_BAK",
       "dbo.TimeLine_New",
+      "dbo.TransactionHistory",
+      "dbo.TriageTemplate",
       "dbo.UserExperienceVirtualQueue",
       "dbo.VirtualCampaignLineItemRequests",
       "dbo.VirtualQueue",
@@ -2580,16 +2407,13 @@
       "ePrescription.tblPharmacyInfo",
       "ePrescription.tblPrescriptionMessage",
       "fqb.AccountHolderAndEmployerBalance",
-      "fqb.Allergies",
       "fqb.AppointmentMaternity",
       "fqb.AppointmentMedications",
       "fqb.Appointments",
       "fqb.Claims",
-      "fqb.Diagnosis",
       "fqb.Immunisation",
       "fqb.InvoiceDetail",
       "fqb.InvoicePayments",
-      "fqb.Invoices",
       "fqb.NewAppointmentServices",
       "fqb.Patient",
       "fqb.PatientInvoices",
@@ -2600,287 +2424,7 @@
   },
   "row_stats": [
     {
-      "duration_ms": 239.879,
-      "object_type": "view",
-      "qualified_name": "dbo.ServiceTemplate",
-      "row_count": 58,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-06-07 11:25:14.940000",
-          "min_value": "2015-11-01 21:27:55.127000"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-08-25 15:55:20.380000",
-          "min_value": "2015-12-01 12:36:00"
-        }
-      ]
-    },
-    {
-      "duration_ms": 92.521,
-      "object_type": "view",
-      "qualified_name": "dbo.Addresses",
-      "row_count": 118434,
-      "row_count_status": "exact",
-      "watermark_columns": []
-    },
-    {
-      "duration_ms": 43.517,
-      "object_type": "view",
-      "qualified_name": "dbo.HTIReferral",
-      "row_count": 1,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2019-03-04 17:56:28.333000",
-          "min_value": "2019-03-04 17:56:28.333000"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2019-03-04 17:56:28.333000",
-          "min_value": "2019-03-04 17:56:28.333000"
-        }
-      ]
-    },
-    {
-      "duration_ms": 165.645,
-      "object_type": "view",
-      "qualified_name": "dbo.OutStandingBalance",
-      "row_count": 493,
-      "row_count_status": "exact",
-      "watermark_columns": []
-    },
-    {
-      "duration_ms": 108.053,
-      "object_type": "view",
-      "qualified_name": "dbo.PatientContact",
-      "row_count": 31402,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-30 09:55:30.473000",
-          "min_value": "2009-05-05 15:21:14"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-03 14:58:13.967000",
-          "min_value": "2009-05-05 15:22:06"
-        }
-      ]
-    },
-    {
-      "duration_ms": 34.203,
-      "object_type": "view",
-      "qualified_name": "dbo.PendingFinishCounsult",
-      "row_count": 286,
-      "row_count_status": "exact",
-      "watermark_columns": []
-    },
-    {
-      "duration_ms": 71.305,
-      "object_type": "view",
-      "qualified_name": "dbo.MedicineBrand",
-      "row_count": 9465,
-      "row_count_status": "exact",
-      "watermark_columns": []
-    },
-    {
-      "duration_ms": 3711.703,
-      "object_type": "view",
-      "qualified_name": "dbo.InboxDetail",
-      "row_count": 1555063,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-09-28 15:21:44.353000",
-          "min_value": "1998-07-09 00:00:00"
-        }
-      ]
-    },
-    {
-      "duration_ms": 309.913,
-      "object_type": "view",
-      "qualified_name": "dbo.LabRad",
-      "row_count": 670,
-      "row_count_status": "exact",
-      "watermark_columns": []
-    },
-    {
-      "duration_ms": 98.204,
-      "object_type": "view",
-      "qualified_name": "dbo.Recalls",
-      "row_count": 97434,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-03 20:37:03.200000",
-          "min_value": "2001-10-17 09:47:49"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:04:25.367000",
-          "min_value": "2016-03-29 10:30:12.743000"
-        }
-      ]
-    },
-    {
-      "duration_ms": 188.278,
-      "object_type": "view",
-      "qualified_name": "dbo.Patient",
-      "row_count": 30746,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 11:28:47.007000",
-          "min_value": "2015-11-01 02:44:24.083000"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-12-07 11:20:57.477000",
-          "min_value": "2015-11-02 03:45:57.520000"
-        }
-      ]
-    },
-    {
-      "duration_ms": 306.676,
-      "object_type": "view",
-      "qualified_name": "dbo.Immunisation",
-      "row_count": 153134,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-31 11:47:33.823000",
-          "min_value": "1981-11-18 17:01:55"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-31 11:49:43.603000",
-          "min_value": "1988-05-18 11:02:21"
-        }
-      ]
-    },
-    {
-      "duration_ms": 224.884,
-      "object_type": "view",
-      "qualified_name": "dbo.Appointments",
-      "row_count": 620854,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:00:45.543000",
-          "min_value": "1900-01-01 00:00:00"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:00:45.543000",
-          "min_value": "1900-01-01 00:00:00"
-        }
-      ]
-    },
-    {
-      "duration_ms": 647.693,
-      "object_type": "view",
-      "qualified_name": "dbo.Diagnosis",
-      "row_count": 5849,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-03 12:51:45.210000",
-          "min_value": "1976-10-15 00:00:00"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-03 12:51:45.210000",
-          "min_value": "1976-10-15 00:00:00"
-        }
-      ]
-    },
-    {
-      "duration_ms": 83.869,
-      "object_type": "view",
-      "qualified_name": "dbo.Payments",
-      "row_count": 7562,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:30:54.550000",
-          "min_value": "2001-10-17 09:54:38"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:30:54.550000",
-          "min_value": "2001-10-17 09:54:38"
-        }
-      ]
-    },
-    {
-      "duration_ms": 558.866,
-      "object_type": "view",
-      "qualified_name": "dbo.InBox",
-      "row_count": 395289,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-03 10:30:30.080000",
-          "min_value": "1996-02-12 02:26:00"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-03 10:30:30.080000",
-          "min_value": "1998-02-18 23:47:00"
-        }
-      ]
-    },
-    {
-      "duration_ms": 269.02,
-      "object_type": "view",
-      "qualified_name": "dbo.HBA1cResult",
-      "row_count": 0,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": null,
-          "min_value": null
-        }
-      ]
-    },
-    {
-      "duration_ms": 8507.463,
+      "duration_ms": 395.43,
       "object_type": "view",
       "qualified_name": "dbo.AppointmentMedications",
       "row_count": 955356,
@@ -2901,106 +2445,107 @@
       ]
     },
     {
-      "duration_ms": 43.122,
+      "duration_ms": 61.005,
       "object_type": "view",
-      "qualified_name": "dbo.Measurements",
-      "row_count": 11615,
+      "qualified_name": "dbo.Disease",
+      "row_count": 270481,
+      "row_count_status": "exact",
+      "watermark_columns": []
+    },
+    {
+      "duration_ms": 119.858,
+      "object_type": "view",
+      "qualified_name": "dbo.Patient",
+      "row_count": 30746,
       "row_count_status": "exact",
       "watermark_columns": [
         {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:31:47.507000",
-          "min_value": "1991-09-01 08:32:00"
-        },
-        {
           "column_name": "InsertedAt",
           "data_type": "datetime",
-          "max_value": "2017-11-03 12:45:20.033000",
-          "min_value": "1991-09-01 08:32:00"
+          "max_value": "2017-11-06 11:28:47.007000",
+          "min_value": "2015-11-01 02:44:24.083000"
+        },
+        {
+          "column_name": "UpdatedAt",
+          "data_type": "datetime",
+          "max_value": "2017-12-07 11:20:57.477000",
+          "min_value": "2015-11-02 03:45:57.520000"
         }
       ]
     },
     {
-      "duration_ms": 524.763,
+      "duration_ms": 12.478,
       "object_type": "view",
-      "qualified_name": "dbo.ImmunisationSchedule",
-      "row_count": 448035,
+      "qualified_name": "fqb.Allergies",
+      "row_count": 4177,
       "row_count_status": "exact",
       "watermark_columns": [
         {
           "column_name": "InsertedAt",
           "data_type": "datetime",
-          "max_value": "2017-11-03 19:54:38.017000",
-          "min_value": "1981-11-18 17:01:56"
+          "max_value": "2017-10-26 11:00:11.230000",
+          "min_value": "1900-01-01 00:00:00"
         },
         {
           "column_name": "UpdatedAt",
           "data_type": "datetime",
-          "max_value": "2017-11-03 19:54:38.017000",
+          "max_value": "2017-10-26 11:00:11.230000",
+          "min_value": "1993-06-06 00:00:00"
+        }
+      ]
+    },
+    {
+      "duration_ms": 642.219,
+      "object_type": "view",
+      "qualified_name": "fqb.Diagnosis",
+      "row_count": 5849,
+      "row_count_status": "exact",
+      "watermark_columns": [
+        {
+          "column_name": "InsertedAt",
+          "data_type": "datetime",
+          "max_value": "2017-11-03 12:51:45.210000",
+          "min_value": "1976-10-15 00:00:00"
+        },
+        {
+          "column_name": "UpdatedAt",
+          "data_type": "datetime",
+          "max_value": "2017-11-03 12:51:45.210000",
+          "min_value": "1976-10-15 00:00:00"
+        }
+      ]
+    },
+    {
+      "duration_ms": 284.219,
+      "object_type": "view",
+      "qualified_name": "dbo.Immunisation",
+      "row_count": 153134,
+      "row_count_status": "exact",
+      "watermark_columns": [
+        {
+          "column_name": "InsertedAt",
+          "data_type": "datetime",
+          "max_value": "2017-10-31 11:47:33.823000",
+          "min_value": "1981-11-18 17:01:55"
+        },
+        {
+          "column_name": "UpdatedAt",
+          "data_type": "datetime",
+          "max_value": "2017-10-31 11:49:43.603000",
           "min_value": "1988-05-18 11:02:21"
         }
       ]
     },
     {
-      "duration_ms": 20.561,
+      "duration_ms": 11.819,
       "object_type": "view",
-      "qualified_name": "dbo.AppointmentsSlots",
-      "row_count": 14,
+      "qualified_name": "OLAP.Medicine",
+      "row_count": 65501,
       "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:00:45.580000",
-          "min_value": "2017-11-03 21:22:23.907000"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:00:45.580000",
-          "min_value": "2017-11-03 21:22:23.907000"
-        }
-      ]
+      "watermark_columns": []
     },
     {
-      "duration_ms": 589.539,
-      "object_type": "view",
-      "qualified_name": "dbo.TransactionHistory",
-      "row_count": 3369,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:34:35.440000",
-          "min_value": "2001-10-23 14:50:02"
-        }
-      ]
-    },
-    {
-      "duration_ms": 5500.097,
-      "object_type": "view",
-      "qualified_name": "dbo.TimeLine",
-      "row_count": 2469619,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 10:46:46.203000",
-          "min_value": "1899-12-30 00:00:00"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2079-03-18 11:46:13",
-          "min_value": "1899-12-30 00:00:00"
-        }
-      ]
-    },
-    {
-      "duration_ms": 212.788,
+      "duration_ms": 186.121,
       "object_type": "view",
       "qualified_name": "dbo.PatientAlerts",
       "row_count": 383870,
@@ -3021,527 +2566,10 @@
       ]
     },
     {
-      "duration_ms": 797.879,
+      "duration_ms": 74.777,
       "object_type": "view",
-      "qualified_name": "dbo.MeasurementServiceTemplateDetail",
-      "row_count": 11825,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-03 12:45:20.033000",
-          "min_value": "2001-01-24 09:20:00"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:31:47.507000",
-          "min_value": "2001-01-24 09:20:00"
-        }
-      ]
-    },
-    {
-      "duration_ms": 34.568,
-      "object_type": "view",
-      "qualified_name": "dbo.PatientEthnicity",
-      "row_count": 13568,
-      "row_count_status": "exact",
-      "watermark_columns": []
-    },
-    {
-      "duration_ms": 230.156,
-      "object_type": "view",
-      "qualified_name": "dbo.Provider",
-      "row_count": 1141,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-31 10:26:04.317000",
-          "min_value": "2015-10-30 00:00:00"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-12-06 16:23:21.790000",
-          "min_value": "2015-11-01 00:53:45.850000"
-        }
-      ]
-    },
-    {
-      "duration_ms": 401.032,
-      "object_type": "view",
-      "qualified_name": "dbo.PatientTask",
-      "row_count": 174898,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-02 11:27:11.850000",
-          "min_value": "2001-10-19 13:35:07"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-03 14:48:16.107000",
-          "min_value": "2001-10-19 13:58:43"
-        }
-      ]
-    },
-    {
-      "duration_ms": 10.565,
-      "object_type": "view",
-      "qualified_name": "dbo.PatientAccountAge",
-      "row_count": 0,
-      "row_count_status": "exact",
-      "watermark_columns": []
-    },
-    {
-      "duration_ms": 14.328,
-      "object_type": "view",
-      "qualified_name": "dbo.LettersAndDocuments",
-      "row_count": 0,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": null,
-          "min_value": null
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": null,
-          "min_value": null
-        }
-      ]
-    },
-    {
-      "duration_ms": 24.147,
-      "object_type": "view",
-      "qualified_name": "dbo.PatientContactMethod",
-      "row_count": 2667,
-      "row_count_status": "exact",
-      "watermark_columns": []
-    },
-    {
-      "duration_ms": 6.732,
-      "object_type": "view",
-      "qualified_name": "dbo.NESEnrolment",
-      "row_count": 0,
-      "row_count_status": "exact",
-      "watermark_columns": []
-    },
-    {
-      "duration_ms": 130.71,
-      "object_type": "view",
-      "qualified_name": "dbo.NextOfKin",
-      "row_count": 21018,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-03 12:23:08.363000",
-          "min_value": "2015-11-01 02:29:05.903000"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:17:08.423000",
-          "min_value": "2015-11-01 20:37:12.460000"
-        }
-      ]
-    },
-    {
-      "duration_ms": 117.928,
-      "object_type": "view",
-      "qualified_name": "dbo.Claims",
-      "row_count": 93511,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-03-13 10:29:30.687000",
-          "min_value": "2009-06-22 12:28:19"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-02 09:44:16.093000",
-          "min_value": "2017-07-17 12:42:27.420000"
-        }
-      ]
-    },
-    {
-      "duration_ms": 68.976,
-      "object_type": "view",
-      "qualified_name": "dbo.PortalRecievedMessages",
-      "row_count": 6602,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-18 12:53:59.607000",
-          "min_value": "2016-03-24 16:29:29.063000"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-18 12:53:59.607000",
-          "min_value": "2016-03-24 16:29:29.063000"
-        }
-      ]
-    },
-    {
-      "duration_ms": 242.42,
-      "object_type": "view",
-      "qualified_name": "dbo.QuickConsult",
-      "row_count": 620894,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:00:45.543000",
-          "min_value": "1900-01-01 00:00:00"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:00:45.543000",
-          "min_value": "1900-01-01 00:00:00"
-        }
-      ]
-    },
-    {
-      "duration_ms": 16.91,
-      "object_type": "view",
-      "qualified_name": "dbo.ACC18",
-      "row_count": 8,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2016-08-27 13:42:57.220000",
-          "min_value": "2011-01-01 00:00:00"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2016-08-27 13:42:57.220000",
-          "min_value": "2011-01-01 00:00:00"
-        }
-      ]
-    },
-    {
-      "duration_ms": 12.452,
-      "object_type": "view",
-      "qualified_name": "dbo.PatientPortalMenu",
-      "row_count": 0,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": null,
-          "min_value": null
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": null,
-          "min_value": null
-        }
-      ]
-    },
-    {
-      "duration_ms": 30.066,
-      "object_type": "view",
-      "qualified_name": "dbo.Accidents",
-      "row_count": 37,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-03 12:32:27.170000",
-          "min_value": "1996-01-20 00:00:00"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-03 12:32:27.170000",
-          "min_value": "1996-01-20 00:00:00"
-        }
-      ]
-    },
-    {
-      "duration_ms": 8.44,
-      "object_type": "view",
-      "qualified_name": "dbo.Company",
-      "row_count": 5988,
-      "row_count_status": "exact",
-      "watermark_columns": []
-    },
-    {
-      "duration_ms": 372.897,
-      "object_type": "view",
-      "qualified_name": "dbo.Roster",
-      "row_count": 430727,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-31 10:31:02.777000",
-          "min_value": "2001-10-24 08:32:18"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-03 21:20:05.310000",
-          "min_value": "2001-10-24 08:32:18"
-        }
-      ]
-    },
-    {
-      "duration_ms": 1616.971,
-      "object_type": "view",
-      "qualified_name": "dbo.OutBox",
-      "row_count": 285451,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 11:28:48.117000",
-          "min_value": "1995-12-07 21:25:00"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 11:28:48.117000",
-          "min_value": "2001-04-23 16:25:00"
-        }
-      ]
-    },
-    {
-      "duration_ms": 27.727,
-      "object_type": "view",
-      "qualified_name": "dbo.Allergies",
-      "row_count": 4177,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-26 11:00:11.230000",
-          "min_value": "1900-01-01 00:00:00"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-26 11:00:11.230000",
-          "min_value": "1993-06-06 00:00:00"
-        }
-      ]
-    },
-    {
-      "duration_ms": 16.913,
-      "object_type": "view",
-      "qualified_name": "dbo.CarePlan",
-      "row_count": 167,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-23 12:10:19.847000",
-          "min_value": "2016-01-17 01:19:15.147000"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-23 12:10:19.847000",
-          "min_value": "2016-01-19 05:18:19.720000"
-        }
-      ]
-    },
-    {
-      "duration_ms": 47.929,
-      "object_type": "view",
-      "qualified_name": "dbo.Refund",
-      "row_count": 594,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-28 12:31:30.467000",
-          "min_value": "2011-10-06 15:46:42"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-28 12:31:30.467000",
-          "min_value": "2011-10-06 15:46:42"
-        }
-      ]
-    },
-    {
-      "duration_ms": 14.048,
-      "object_type": "view",
-      "qualified_name": "dbo.ACCConsumableDetail",
-      "row_count": 0,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": null,
-          "min_value": null
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": null,
-          "min_value": null
-        }
-      ]
-    },
-    {
-      "duration_ms": 21.975,
-      "object_type": "view",
-      "qualified_name": "dbo.ReferralPatient",
-      "row_count": 745,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-06 11:24:16.823000",
-          "min_value": "2016-11-11 16:00:59.913000"
-        }
-      ]
-    },
-    {
-      "duration_ms": 13.877,
-      "object_type": "view",
-      "qualified_name": "dbo.AgedBalanceSummaryReportMonthly",
-      "row_count": 572,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2019-12-09 15:40:23.633000",
-          "min_value": "2019-02-01 05:25:12.690000"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2019-12-09 15:40:23.633000",
-          "min_value": "2019-02-01 05:25:46.740000"
-        }
-      ]
-    },
-    {
-      "duration_ms": 21.567,
-      "object_type": "view",
-      "qualified_name": "dbo.TriageTemplate",
-      "row_count": 0,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": null,
-          "min_value": null
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": null,
-          "min_value": null
-        }
-      ]
-    },
-    {
-      "duration_ms": 27.486,
-      "object_type": "view",
-      "qualified_name": "dbo.AppointmentMaternity",
-      "row_count": 13,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-08-15 20:31:00.253000",
-          "min_value": "2016-04-26 18:02:08.280000"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-08-15 20:31:00.253000",
-          "min_value": "2016-05-02 23:29:16.827000"
-        }
-      ]
-    },
-    {
-      "duration_ms": 158.433,
-      "object_type": "view",
-      "qualified_name": "dbo.NewAppointmentServices",
-      "row_count": 109530,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:23:12.567000",
-          "min_value": "2016-06-10 14:36:37.540000"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:23:12.567000",
-          "min_value": "2016-06-10 14:36:37.540000"
-        }
-      ]
-    },
-    {
-      "duration_ms": 85.687,
-      "object_type": "view",
-      "qualified_name": "dbo.InvoiceDetail",
-      "row_count": 3777,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:34:35.447000",
-          "min_value": "2015-12-13 01:57:11.940000"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 12:34:35.447000",
-          "min_value": "2016-01-21 01:31:58.430000"
-        }
-      ]
-    },
-    {
-      "duration_ms": 85.613,
-      "object_type": "view",
-      "qualified_name": "dbo.Invoices",
-      "row_count": 7118,
+      "qualified_name": "fqb.Invoices",
+      "row_count": 16442,
       "row_count_status": "exact",
       "watermark_columns": [
         {
@@ -3559,12 +2587,25 @@
       ]
     },
     {
-      "duration_ms": 6.956,
+      "duration_ms": 188.975,
       "object_type": "view",
-      "qualified_name": "AIFinanceAssistant.VU_PracticeTotalExpenses",
-      "row_count": 16,
+      "qualified_name": "dbo.Appointments",
+      "row_count": 620854,
       "row_count_status": "exact",
-      "watermark_columns": []
+      "watermark_columns": [
+        {
+          "column_name": "InsertedAt",
+          "data_type": "datetime",
+          "max_value": "2017-11-06 12:00:45.543000",
+          "min_value": "1900-01-01 00:00:00"
+        },
+        {
+          "column_name": "UpdatedAt",
+          "data_type": "datetime",
+          "max_value": "2017-11-06 12:00:45.543000",
+          "min_value": "1900-01-01 00:00:00"
+        }
+      ]
     }
   ],
   "surface": {
