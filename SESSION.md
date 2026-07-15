@@ -4,6 +4,30 @@
 
 ---
 
+## Session 2026-07-15 (e) — Criterion-4 caveat resolved (dbo.TimeLine re-run)
+
+### Resume here
+
+1. **Criterion-4 caveat is resolved, not worked around.** Product-owner direction: try query optimization on `dbo.TimeLine`'s COUNT(*), re-run, report back. Diagnosis found no query problem — the view already uses `NOLOCK` on every underlying table, and a baseline COUNT at a 120s timeout returned in 2.4s. 3 reproducible runs at the standard 15s timeout all succeeded (~2.3s, exact count 2,469,619). The original timeout was a transient blip, not a defect. **No code changed.** Re-ran `scripts/verify_env.ps1` unchanged: fresh `artifacts/env-report.json`/`.md`, 0 indeterminate rows across all 54 in-scope objects, `python -m cdss.validate_report` → `VALID`.
+2. **All 7 Phase 0 exit criteria are now cleanly met.** Formal exit declaration is still a product-owner call, not taken here.
+3. **Doc-recording-the-push commit (`8ccab9e`) is local only, not pushed.** Held pending confirmation since it touches the public remote.
+
+### What was done
+
+- Diagnostic script (scratchpad, not committed): pulled `dbo.TimeLine`'s view definition (`INFORMATION_SCHEMA.VIEWS`) and dependency graph (`sys.sql_expression_dependencies`) via the audited connection, catalog-only reads (D-015) — confirmed 6 `OUTER APPLY` joins, all base tables already hinted `(nolock)`.
+- Timing check: baseline COUNT at 120s timeout → 2.4s; 3x reproducibility check at the standard 15s timeout → all exact, ~2.3s, same count (2,469,619).
+- Re-ran `scripts/verify_env.ps1` (no source changes) against `INDICI_BI_Full`: `artifacts/env-report.json`/`.md` regenerated, validator → `VALID`.
+- `PROJECT_STATE.md` updated: criterion-4 caveat cleared, blockers table updated.
+
+### Evidence
+
+- `grep -c '"row_count_status": "indeterminate"' artifacts/env-report.json` → `0`.
+- `artifacts/env-report.json` → `dbo.TimeLine`: `"row_count": 2469619, "row_count_status": "exact"`.
+- `artifacts/audit/source-audit-20260715.jsonl`: 104 → 215 lines this run (no timeout ⇒ no audit gap).
+- `scripts/check.ps1` not re-run — no source touched; last known-green state unchanged (72 tests, mypy strict, ruff clean).
+
+---
+
 ## Session 2026-07-15 (d) — Committed + pushed to GitHub; session end
 
 ### Resume here

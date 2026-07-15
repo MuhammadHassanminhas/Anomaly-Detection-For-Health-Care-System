@@ -6,7 +6,16 @@
 ## Current phase
 
 **Phase 0 — Environment & access verification** (Stage B execution; spec: `docs/phases/phase-00-environment-access.md`).
-Steps 1–8 of 8 complete. All 8 exit criteria have supporting evidence (one caveat, see below) — **Phase 0 exit itself has not been declared**; that is a phase-boundary decision reserved for explicit product-owner approval, not taken unilaterally here.
+Steps 1–8 of 8 complete. All 8 exit criteria have supporting evidence, **criterion-4 caveat now cleared** (see below) — **Phase 0 exit itself has not been declared**; that is a phase-boundary decision reserved for explicit product-owner approval, not taken unilaterally here.
+
+## Last completed work (2026-07-15, criterion-4 re-run)
+
+Product-owner direction: investigate whether `dbo.TimeLine`'s COUNT(*) timeout (exit criterion 4 caveat) could be resolved by query optimization, re-run, report back.
+- Diagnosis (audited, read-only, catalog + existing view allowlist only — no new access): view definition and dependency graph pulled via `INFORMATION_SCHEMA.VIEWS`/`sys.sql_expression_dependencies`; `dbo.TimeLine` already uses `NOLOCK` hints on every underlying base table in its `OUTER APPLY` joins. Baseline `COUNT(*)` at a 120s timeout returned in 2.4 s (2,469,619 rows) — not a genuine slow-query problem.
+- Reproducibility check: 3 consecutive runs at the standard 15 s timeout, all exact, ~2.3 s each, same count. Conclusion: the original timeout (2026-07-14/15) was a transient blip (load/lock contention at that moment), not a query defect — **no code or query change made**.
+- Re-ran the official pipeline (`scripts/verify_env.ps1`) unchanged: fresh `artifacts/env-report.json`/`.md`, `python -m cdss.validate_report` → `VALID`. All 54 in-scope objects now `row_count_status: exact` — **0 indeterminate rows**, `dbo.TimeLine` = 2,469,619. Exit criterion 4's caveat is cleared by this run's evidence, not by a workaround.
+- Audit trail: `artifacts/audit/source-audit-20260715.jsonl` grew 104 → 215 lines this run (statements = audit lines, no timeout to produce a gap).
+- No `scripts/check.ps1` changes needed — no source touched, gate untouched (still 72 tests / mypy strict / ruff clean from step 8).
 
 ## Last completed work (2026-07-15, step 8)
 
@@ -38,17 +47,18 @@ Earlier the same day: steps 1–6 (scaffolding; config loader; audited SQL-guard
 
 ## Current milestone
 
-**Phase 0 exit** — all 8 steps done; D-001 sign-off recorded. 6 of 7 exit criteria cleanly verified; criterion 4 (audit line count = statement count) has the `dbo.TimeLine` timeout caveat above. Declaring the phase formally exited is a product-owner decision, not yet taken.
+**Phase 0 exit** — all 8 steps done; D-001 sign-off recorded. All 7 exit criteria now cleanly verified — criterion 4's `dbo.TimeLine` caveat cleared by the re-run above (0 indeterminate rows). Declaring the phase formally exited is still a product-owner decision, not yet taken.
 
 ## Current blockers
 
 | ID | Blocker | Blocks |
 |----|---------|--------|
-| — | Formal Phase 0 exit declaration — awaiting product-owner review of the exit-criteria checklist (incl. the criterion-4 caveat) | Phase 1 start |
+| — | Formal Phase 0 exit declaration — all criteria now clean; awaiting product-owner sign-off | Phase 1 start |
 | — | Repo visibility: currently public, user confirmed pushing anyway; still worth flipping to private manually when convenient | none (accepted) |
+| — | Local commit `8ccab9e` (doc updates recording the GitHub push) not yet pushed to `origin` | none — awaiting push confirmation |
 
 Non-blocking housekeeping: stray untracked file `echo` (0-byte, accidental) still sits in the repo root, deliberately excluded from git — safe to delete whenever, or leave.
 
 ## Next task
 
-Session ended 2026-07-15 after pushing all committed work to GitHub. Resume by: (a) product-owner review/declaration of Phase 0 exit (with a ruling on the criterion-4 audit-gap caveat — accept as-is, or authorize a fix to `AuditedSourceConnection.execute_query()` to audit failed/timed-out statements too), (b) deciding whether to flip the GitHub repo to private, or (c) whatever the product owner directs next. See `SESSION.md` → "Resume here" for full detail.
+Criterion-4 caveat resolved by re-run (2026-07-15) — no timeout, no code change needed. Resume by: (a) product-owner sign-off declaring Phase 0 formally exited (all 7 criteria now clean), (b) confirming whether to push commit `8ccab9e` + the new env-report artifacts, (c) deciding whether to flip the GitHub repo to private, or (d) whatever the product owner directs next. See `SESSION.md` → "Resume here" for full detail.

@@ -6,7 +6,7 @@
     "product_version": "15.0.4460.4",
     "version_string": "Microsoft SQL Server 2019 (RTM-CU32-GDR) (KB5077469) - 15.0.4460.4 (X64) \n\tFeb 13 2026 17:00:40 \n\tCopyright (C) 2019 Microsoft Corporation\n\tDeveloper Edition (64-bit) on Windows Server 2019 Standard 10.0 <X64> (Build 17763: )\n"
   },
-  "generated_at": "2026-07-15T05:05:32.477254+00:00",
+  "generated_at": "2026-07-15T05:43:37.927050+00:00",
   "reconciliation": {
     "entries": [
       {
@@ -2600,7 +2600,7 @@
   },
   "row_stats": [
     {
-      "duration_ms": 24.175,
+      "duration_ms": 239.879,
       "object_type": "view",
       "qualified_name": "dbo.ServiceTemplate",
       "row_count": 58,
@@ -2621,7 +2621,7 @@
       ]
     },
     {
-      "duration_ms": 100.794,
+      "duration_ms": 92.521,
       "object_type": "view",
       "qualified_name": "dbo.Addresses",
       "row_count": 118434,
@@ -2629,7 +2629,7 @@
       "watermark_columns": []
     },
     {
-      "duration_ms": 69.507,
+      "duration_ms": 43.517,
       "object_type": "view",
       "qualified_name": "dbo.HTIReferral",
       "row_count": 1,
@@ -2650,7 +2650,7 @@
       ]
     },
     {
-      "duration_ms": 210.044,
+      "duration_ms": 165.645,
       "object_type": "view",
       "qualified_name": "dbo.OutStandingBalance",
       "row_count": 493,
@@ -2658,7 +2658,7 @@
       "watermark_columns": []
     },
     {
-      "duration_ms": 299.945,
+      "duration_ms": 108.053,
       "object_type": "view",
       "qualified_name": "dbo.PatientContact",
       "row_count": 31402,
@@ -2679,7 +2679,7 @@
       ]
     },
     {
-      "duration_ms": 1075.426,
+      "duration_ms": 34.203,
       "object_type": "view",
       "qualified_name": "dbo.PendingFinishCounsult",
       "row_count": 286,
@@ -2687,7 +2687,7 @@
       "watermark_columns": []
     },
     {
-      "duration_ms": 565.154,
+      "duration_ms": 71.305,
       "object_type": "view",
       "qualified_name": "dbo.MedicineBrand",
       "row_count": 9465,
@@ -2695,7 +2695,7 @@
       "watermark_columns": []
     },
     {
-      "duration_ms": 15401.524,
+      "duration_ms": 3711.703,
       "object_type": "view",
       "qualified_name": "dbo.InboxDetail",
       "row_count": 1555063,
@@ -2710,7 +2710,7 @@
       ]
     },
     {
-      "duration_ms": 4804.976,
+      "duration_ms": 309.913,
       "object_type": "view",
       "qualified_name": "dbo.LabRad",
       "row_count": 670,
@@ -2718,7 +2718,7 @@
       "watermark_columns": []
     },
     {
-      "duration_ms": 626.765,
+      "duration_ms": 98.204,
       "object_type": "view",
       "qualified_name": "dbo.Recalls",
       "row_count": 97434,
@@ -2739,7 +2739,7 @@
       ]
     },
     {
-      "duration_ms": 190.049,
+      "duration_ms": 188.278,
       "object_type": "view",
       "qualified_name": "dbo.Patient",
       "row_count": 30746,
@@ -2760,7 +2760,7 @@
       ]
     },
     {
-      "duration_ms": 2195.431,
+      "duration_ms": 306.676,
       "object_type": "view",
       "qualified_name": "dbo.Immunisation",
       "row_count": 153134,
@@ -2781,7 +2781,7 @@
       ]
     },
     {
-      "duration_ms": 7183.355,
+      "duration_ms": 224.884,
       "object_type": "view",
       "qualified_name": "dbo.Appointments",
       "row_count": 620854,
@@ -2802,7 +2802,7 @@
       ]
     },
     {
-      "duration_ms": 1598.781,
+      "duration_ms": 647.693,
       "object_type": "view",
       "qualified_name": "dbo.Diagnosis",
       "row_count": 5849,
@@ -2823,7 +2823,7 @@
       ]
     },
     {
-      "duration_ms": 102.226,
+      "duration_ms": 83.869,
       "object_type": "view",
       "qualified_name": "dbo.Payments",
       "row_count": 7562,
@@ -2844,7 +2844,7 @@
       ]
     },
     {
-      "duration_ms": 1661.524,
+      "duration_ms": 558.866,
       "object_type": "view",
       "qualified_name": "dbo.InBox",
       "row_count": 395289,
@@ -2865,7 +2865,7 @@
       ]
     },
     {
-      "duration_ms": 265.311,
+      "duration_ms": 269.02,
       "object_type": "view",
       "qualified_name": "dbo.HBA1cResult",
       "row_count": 0,
@@ -2880,7 +2880,7 @@
       ]
     },
     {
-      "duration_ms": 11678.32,
+      "duration_ms": 8507.463,
       "object_type": "view",
       "qualified_name": "dbo.AppointmentMedications",
       "row_count": 955356,
@@ -2901,7 +2901,7 @@
       ]
     },
     {
-      "duration_ms": 177.142,
+      "duration_ms": 43.122,
       "object_type": "view",
       "qualified_name": "dbo.Measurements",
       "row_count": 11615,
@@ -2922,7 +2922,7 @@
       ]
     },
     {
-      "duration_ms": 2572.815,
+      "duration_ms": 524.763,
       "object_type": "view",
       "qualified_name": "dbo.ImmunisationSchedule",
       "row_count": 448035,
@@ -2943,7 +2943,7 @@
       ]
     },
     {
-      "duration_ms": 70.409,
+      "duration_ms": 20.561,
       "object_type": "view",
       "qualified_name": "dbo.AppointmentsSlots",
       "row_count": 14,
@@ -2964,7 +2964,7 @@
       ]
     },
     {
-      "duration_ms": 856.998,
+      "duration_ms": 589.539,
       "object_type": "view",
       "qualified_name": "dbo.TransactionHistory",
       "row_count": 3369,
@@ -2979,11 +2979,11 @@
       ]
     },
     {
-      "duration_ms": 24420.265,
+      "duration_ms": 5500.097,
       "object_type": "view",
       "qualified_name": "dbo.TimeLine",
-      "row_count": null,
-      "row_count_status": "indeterminate",
+      "row_count": 2469619,
+      "row_count_status": "exact",
       "watermark_columns": [
         {
           "column_name": "InsertedAt",
@@ -3000,7 +3000,7 @@
       ]
     },
     {
-      "duration_ms": 1576.381,
+      "duration_ms": 212.788,
       "object_type": "view",
       "qualified_name": "dbo.PatientAlerts",
       "row_count": 383870,
@@ -3021,7 +3021,7 @@
       ]
     },
     {
-      "duration_ms": 957.928,
+      "duration_ms": 797.879,
       "object_type": "view",
       "qualified_name": "dbo.MeasurementServiceTemplateDetail",
       "row_count": 11825,
@@ -3042,7 +3042,7 @@
       ]
     },
     {
-      "duration_ms": 47.241,
+      "duration_ms": 34.568,
       "object_type": "view",
       "qualified_name": "dbo.PatientEthnicity",
       "row_count": 13568,
@@ -3050,7 +3050,7 @@
       "watermark_columns": []
     },
     {
-      "duration_ms": 283.906,
+      "duration_ms": 230.156,
       "object_type": "view",
       "qualified_name": "dbo.Provider",
       "row_count": 1141,
@@ -3071,7 +3071,7 @@
       ]
     },
     {
-      "duration_ms": 2583.79,
+      "duration_ms": 401.032,
       "object_type": "view",
       "qualified_name": "dbo.PatientTask",
       "row_count": 174898,
@@ -3092,7 +3092,7 @@
       ]
     },
     {
-      "duration_ms": 52.44,
+      "duration_ms": 10.565,
       "object_type": "view",
       "qualified_name": "dbo.PatientAccountAge",
       "row_count": 0,
@@ -3100,7 +3100,7 @@
       "watermark_columns": []
     },
     {
-      "duration_ms": 14.413,
+      "duration_ms": 14.328,
       "object_type": "view",
       "qualified_name": "dbo.LettersAndDocuments",
       "row_count": 0,
@@ -3121,7 +3121,7 @@
       ]
     },
     {
-      "duration_ms": 56.811,
+      "duration_ms": 24.147,
       "object_type": "view",
       "qualified_name": "dbo.PatientContactMethod",
       "row_count": 2667,
@@ -3129,7 +3129,7 @@
       "watermark_columns": []
     },
     {
-      "duration_ms": 7.326,
+      "duration_ms": 6.732,
       "object_type": "view",
       "qualified_name": "dbo.NESEnrolment",
       "row_count": 0,
@@ -3137,7 +3137,7 @@
       "watermark_columns": []
     },
     {
-      "duration_ms": 131.709,
+      "duration_ms": 130.71,
       "object_type": "view",
       "qualified_name": "dbo.NextOfKin",
       "row_count": 21018,
@@ -3158,7 +3158,7 @@
       ]
     },
     {
-      "duration_ms": 134.746,
+      "duration_ms": 117.928,
       "object_type": "view",
       "qualified_name": "dbo.Claims",
       "row_count": 93511,
@@ -3179,7 +3179,7 @@
       ]
     },
     {
-      "duration_ms": 192.354,
+      "duration_ms": 68.976,
       "object_type": "view",
       "qualified_name": "dbo.PortalRecievedMessages",
       "row_count": 6602,
@@ -3200,7 +3200,7 @@
       ]
     },
     {
-      "duration_ms": 2437.893,
+      "duration_ms": 242.42,
       "object_type": "view",
       "qualified_name": "dbo.QuickConsult",
       "row_count": 620894,
@@ -3221,7 +3221,7 @@
       ]
     },
     {
-      "duration_ms": 66.97,
+      "duration_ms": 16.91,
       "object_type": "view",
       "qualified_name": "dbo.ACC18",
       "row_count": 8,
@@ -3242,7 +3242,7 @@
       ]
     },
     {
-      "duration_ms": 21.137,
+      "duration_ms": 12.452,
       "object_type": "view",
       "qualified_name": "dbo.PatientPortalMenu",
       "row_count": 0,
@@ -3263,7 +3263,7 @@
       ]
     },
     {
-      "duration_ms": 67.562,
+      "duration_ms": 30.066,
       "object_type": "view",
       "qualified_name": "dbo.Accidents",
       "row_count": 37,
@@ -3284,7 +3284,7 @@
       ]
     },
     {
-      "duration_ms": 19.805,
+      "duration_ms": 8.44,
       "object_type": "view",
       "qualified_name": "dbo.Company",
       "row_count": 5988,
@@ -3292,7 +3292,7 @@
       "watermark_columns": []
     },
     {
-      "duration_ms": 9860.018,
+      "duration_ms": 372.897,
       "object_type": "view",
       "qualified_name": "dbo.Roster",
       "row_count": 430727,
@@ -3313,7 +3313,7 @@
       ]
     },
     {
-      "duration_ms": 3538.579,
+      "duration_ms": 1616.971,
       "object_type": "view",
       "qualified_name": "dbo.OutBox",
       "row_count": 285451,
@@ -3334,7 +3334,7 @@
       ]
     },
     {
-      "duration_ms": 138.334,
+      "duration_ms": 27.727,
       "object_type": "view",
       "qualified_name": "dbo.Allergies",
       "row_count": 4177,
@@ -3355,7 +3355,7 @@
       ]
     },
     {
-      "duration_ms": 41.264,
+      "duration_ms": 16.913,
       "object_type": "view",
       "qualified_name": "dbo.CarePlan",
       "row_count": 167,
@@ -3376,7 +3376,7 @@
       ]
     },
     {
-      "duration_ms": 65.823,
+      "duration_ms": 47.929,
       "object_type": "view",
       "qualified_name": "dbo.Refund",
       "row_count": 594,
@@ -3397,7 +3397,7 @@
       ]
     },
     {
-      "duration_ms": 36.957,
+      "duration_ms": 14.048,
       "object_type": "view",
       "qualified_name": "dbo.ACCConsumableDetail",
       "row_count": 0,
@@ -3418,7 +3418,7 @@
       ]
     },
     {
-      "duration_ms": 68.17,
+      "duration_ms": 21.975,
       "object_type": "view",
       "qualified_name": "dbo.ReferralPatient",
       "row_count": 745,
@@ -3433,7 +3433,7 @@
       ]
     },
     {
-      "duration_ms": 12.067,
+      "duration_ms": 13.877,
       "object_type": "view",
       "qualified_name": "dbo.AgedBalanceSummaryReportMonthly",
       "row_count": 572,
@@ -3454,7 +3454,7 @@
       ]
     },
     {
-      "duration_ms": 23.767,
+      "duration_ms": 21.567,
       "object_type": "view",
       "qualified_name": "dbo.TriageTemplate",
       "row_count": 0,
@@ -3475,7 +3475,7 @@
       ]
     },
     {
-      "duration_ms": 37.142,
+      "duration_ms": 27.486,
       "object_type": "view",
       "qualified_name": "dbo.AppointmentMaternity",
       "row_count": 13,
@@ -3496,7 +3496,7 @@
       ]
     },
     {
-      "duration_ms": 203.291,
+      "duration_ms": 158.433,
       "object_type": "view",
       "qualified_name": "dbo.NewAppointmentServices",
       "row_count": 109530,
@@ -3517,7 +3517,7 @@
       ]
     },
     {
-      "duration_ms": 83.995,
+      "duration_ms": 85.687,
       "object_type": "view",
       "qualified_name": "dbo.InvoiceDetail",
       "row_count": 3777,
@@ -3538,7 +3538,7 @@
       ]
     },
     {
-      "duration_ms": 92.479,
+      "duration_ms": 85.613,
       "object_type": "view",
       "qualified_name": "dbo.Invoices",
       "row_count": 7118,
@@ -3559,7 +3559,7 @@
       ]
     },
     {
-      "duration_ms": 40.234,
+      "duration_ms": 6.956,
       "object_type": "view",
       "qualified_name": "AIFinanceAssistant.VU_PracticeTotalExpenses",
       "row_count": 16,
