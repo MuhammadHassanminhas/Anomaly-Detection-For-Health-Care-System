@@ -15,3 +15,14 @@ artifacts/audit/
 .DS_Store
 .coverage
 graphify-out/
+
+# untracked from GitHub, kept locally
+/ARCHITECTURE.md
+/CLAUDE.md
+/DECISIONS.md
+/PLAN.md
+/PROJECT_STATE.md
+/SESSION.md
+/docs/phases/
+/schema_for_SQL_PROJ.txt
+/uv.lock
