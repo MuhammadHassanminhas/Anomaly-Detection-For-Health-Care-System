@@ -4,7 +4,12 @@ Covers both within-view composite candidate-key pairs and cross-view
 relationship pairs under one cost-budgeted design:
   (a) pruning -- a pair is only considered when both columns are
       type-compatible and at least one side is key-like; free-text and
-      `measure`-classified columns (D-020) are never a pair candidate;
+      `measure`-classified columns (D-020) are never a pair candidate.
+      "Key-like" (D-024, amends D-021) requires actual evidence -- D-020's
+      own `key` classification, an ID/Code/Key name pattern, or a
+      distinct/row_count ratio above a floor -- never a numeric SQL type by
+      itself (that admitted every generic numeric measure as a pair
+      candidate, found live against the full 10-view catalog);
   (b) containment computed on the same sampled population step 2 already
       profiled (D-018's predicate, reused deterministically) -- never a
       fresh full scan issued just for pair analysis;
@@ -117,13 +122,16 @@ def _type_family(data_type: str) -> str:
 
 
 def _is_key_like(profile: ColumnProfile, *, row_count: int) -> bool:
+    """D-024 (amends D-021): numeric type alone is no longer sufficient --
+    a generic low-cardinality numeric measure (e.g. `Duration`,
+    `ConsultTime`) is not key-like just because its SQL type happens to be
+    numeric. A genuinely key-shaped numeric column is still caught, just via
+    the cardinality-floor branch below rather than type alone."""
     if profile.is_free_text or profile.column_class == "measure":
         return False
     if profile.column_class == "key":
         return True
     if any(pattern in profile.column_name.lower() for pattern in KEY_LIKE_NAME_PATTERNS):
-        return True
-    if profile.data_type.lower() in NUMERIC_ID_TYPES:
         return True
     return (
         profile.distinct_count is not None

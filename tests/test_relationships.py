@@ -97,8 +97,20 @@ def test_is_key_like_true_for_name_pattern() -> None:
     assert _is_key_like(p, row_count=100) is True
 
 
-def test_is_key_like_true_for_numeric_type() -> None:
+def test_is_key_like_false_for_low_cardinality_numeric_type_alone() -> None:
+    # D-024: numeric type alone is no longer sufficient -- a generic
+    # low-cardinality numeric measure (e.g. Duration, ConsultTime) must not
+    # be treated as a plausible join key just because its SQL type is
+    # numeric. Confirmed live: this was the root cause of 17,453 eligible
+    # pairs against a 10-view catalog (D-021's proof was only 2 views).
     p = _profile("SomeValue", "int", distinct_count=10)
+    assert _is_key_like(p, row_count=100) is False
+
+
+def test_is_key_like_true_for_numeric_type_with_high_cardinality() -> None:
+    # A genuinely key-shaped numeric column is still caught -- via the
+    # cardinality-floor branch, not type alone.
+    p = _profile("SomeValue", "int", distinct_count=90)
     assert _is_key_like(p, row_count=100) is True
 
 

@@ -222,7 +222,7 @@
       "additionalProperties": false,
       "properties": {
         "view": { "type": "string" },
-        "operation": { "enum": ["column_profile", "candidate_key", "containment", "sentinel_scan", "watermark_check"] },
+        "operation": { "enum": ["column_profile", "candidate_key", "containment", "sentinel_scan", "watermark_check", "archetype_detection", "reference_capture"] },
         "duration_ms": { "type": "number", "minimum": 0 },
         "status": { "enum": ["ok", "timeout", "skipped_cost"] }
       }

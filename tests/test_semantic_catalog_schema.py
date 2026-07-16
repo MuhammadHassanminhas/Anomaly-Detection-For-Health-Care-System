@@ -207,3 +207,35 @@ def test_pruning_report_missing_field_is_rejected() -> None:
     del catalog["pruning_report"]["pairs_evaluated"]
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate(instance=catalog, schema=load_schema())
+
+
+# --- step 8: profiling_costs must cover every step's cost operation --------------
+
+
+def test_profiling_costs_accepts_archetype_detection_operation() -> None:
+    # Found integrating step 8: cdss.archetype's ArchetypeCost operations
+    # (D-023) were never added to this enum when archetype.py was built --
+    # a schema completeness gap, not a policy change, fixed here.
+    catalog = json.loads(json.dumps(MINIMAL_CATALOG))
+    catalog["profiling_costs"] = [
+        {
+            "view": "dbo.SyntheticView",
+            "operation": "archetype_detection",
+            "duration_ms": 1.0,
+            "status": "ok",
+        }
+    ]
+    jsonschema.validate(instance=catalog, schema=load_schema())
+
+
+def test_profiling_costs_accepts_reference_capture_operation() -> None:
+    catalog = json.loads(json.dumps(MINIMAL_CATALOG))
+    catalog["profiling_costs"] = [
+        {
+            "view": "dbo.SyntheticView",
+            "operation": "reference_capture",
+            "duration_ms": 1.0,
+            "status": "ok",
+        }
+    ]
+    jsonschema.validate(instance=catalog, schema=load_schema())
