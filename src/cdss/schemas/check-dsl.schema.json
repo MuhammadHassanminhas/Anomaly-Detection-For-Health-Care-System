@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cdss.internal/schemas/check-dsl.schema.json",
+  "title": "CDSS check DSL",
+  "description": "Structural gate for every YAML check document (Phase 2 step 1). Validates shape only -- view/column/join existence against the semantic catalog and predicate-leaf expression grammar are the step 2 parser's job (F2), not this schema's.",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "category",
+    "default_severity",
+    "entity",
+    "params",
+    "prerequisites",
+    "predicate",
+    "evidence",
+    "actions",
+    "resolution"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "leafExpression": {
+      "type": "string",
+      "minLength": 1,
+      "description": "An opaque SQL-ish boolean expression, e.g. a comparison, null test, or date-arithmetic comparison. May reference params by {param_name}. Parsed for referenced columns/params by the step 2/3 compiler, not validated here."
+    },
+    "existsClause": {
+      "type": "object",
+      "required": ["view", "on"],
+      "additionalProperties": false,
+      "properties": {
+        "view": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*\\.[A-Za-z_][A-Za-z0-9_]*$"
+        },
+        "on": { "$ref": "#/$defs/leafExpression" },
+        "where": { "$ref": "#/$defs/leafExpression" }
+      }
+    },
+    "predicateNode": {
+      "oneOf": [
+        { "$ref": "#/$defs/leafExpression" },
+        {
+          "type": "object",
+          "required": ["all"],
+          "additionalProperties": false,
+          "properties": {
+            "all": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/predicateNode" }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["any"],
+          "additionalProperties": false,
+          "properties": {
+            "any": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/predicateNode" }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["not"],
+          "additionalProperties": false,
+          "properties": {
+            "not": { "$ref": "#/$defs/predicateNode" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["exists"],
+          "additionalProperties": false,
+          "properties": {
+            "exists": { "$ref": "#/$defs/existsClause" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["not_exists"],
+          "additionalProperties": false,
+          "properties": {
+            "not_exists": { "$ref": "#/$defs/existsClause" }
+          }
+        }
+      ]
+    },
+    "paramDefault": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["strategy", "value"],
+          "additionalProperties": false,
+          "properties": {
+            "strategy": { "const": "fixed" },
+            "value": {}
+          }
+        },
+        {
+          "type": "object",
+          "required": ["strategy", "measure", "p", "fallback"],
+          "additionalProperties": false,
+          "description": "F4: learned per-practice at calibration time (Phase 6) from the practice's own distribution of `measure`; `fallback` is used until enough data exists.",
+          "properties": {
+            "strategy": { "const": "percentile" },
+            "measure": { "type": "string", "minLength": 1 },
+            "p": { "type": "number", "exclusiveMinimum": 0, "maximum": 100 },
+            "fallback": {}
+          }
+        }
+      ]
+    },
+    "paramDef": {
+      "type": "object",
+      "required": ["type", "default"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["integer", "number", "string", "boolean", "array"] },
+        "default": { "$ref": "#/$defs/paramDefault" }
+      }
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "description": "kebab-case, stable identifier -- becomes checks.slug (Phase 3)."
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "category": {
+      "enum": ["referential", "data-quality", "workflow", "care-gap", "revenue-integrity", "policy"]
+    },
+    "default_severity": { "enum": ["low", "medium", "high", "critical"] },
+    "entity": {
+      "type": "object",
+      "required": ["view", "key", "practice_column", "base_filters"],
+      "additionalProperties": false,
+      "properties": {
+        "view": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*\\.[A-Za-z_][A-Za-z0-9_]*$",
+          "description": "Schema-qualified driving view name, verified against the semantic catalog at parse time (F2) -- not here."
+        },
+        "key": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "practice_column": { "type": "string", "minLength": 1 },
+        "base_filters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/leafExpression" }
+        }
+      }
+    },
+    "params": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/paramDef" }
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/leafExpression" },
+      "description": "F6: any NULL/FALSE prerequisite forces indeterminate before the predicate is ever evaluated."
+    },
+    "predicate": { "$ref": "#/$defs/predicateNode" },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "description": "F8: the exact allowlist the narration validator enforces -- nothing outside it can reach rendered text."
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Must exist in the curated action library (stub registry until Phase 4)."
+    },
+    "resolution": { "type": "string", "minLength": 1 }
+  }
+}

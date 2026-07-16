@@ -1,0 +1,31 @@
+# Constructs covered: any, not_exists w/ join, window lookback (DATEADD inside
+# the joined view's where clause, param-driven -- never a literal date).
+id: patient-no-recent-appointment
+title: High-needs patient has no appointment within the recall window
+category: care-gap
+default_severity: high
+entity:
+  view: dbo.Patient
+  key: [ProfileID]
+  practice_column: PracticeID
+  base_filters:
+    - "IsDeleted = 0"
+    - "IsActive = 1"
+params:
+  recall_window_days:
+    type: integer
+    default: { strategy: fixed, value: 365 }
+prerequisites:
+  - "EnrollmentDate IS NOT NULL"
+predicate:
+  all:
+    - any:
+        - "IsHighCare = 1"
+        - "IsCarePlus = 1"
+    - not_exists:
+        view: dbo.Appointments
+        "on": "dbo.Appointments.PatientID = dbo.Patient.ProfileID"
+        where: "dbo.Appointments.IsDeleted = 0 AND dbo.Appointments.ScheduleDate >= DATEADD(day, -{recall_window_days}, sysdatetime())"
+evidence: [ProfileID, FirstName, FamilyName, IsHighCare, IsCarePlus, PracticeID]
+actions: [raise-recall-task]
+resolution: "The patient has a scheduled or completed appointment within the recall window, or the finding is dismissed with a reason."

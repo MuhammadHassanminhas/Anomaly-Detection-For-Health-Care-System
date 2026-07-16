@@ -1,0 +1,31 @@
+# ARCHITECTURE.md §2.3's normative illustrative sketch, checked in verbatim.
+# Constructs covered: all, comparisons, date arithmetic, not_exists w/ join, null-test prerequisites.
+id: appointment-completed-no-invoice
+title: Completed appointment has no invoice
+category: revenue-integrity
+default_severity: medium
+entity:
+  view: dbo.Appointments
+  key: [AppointmentID]
+  practice_column: PracticeID
+  base_filters:
+    - "IsDeleted = 0"
+    - "IsDummy = 0"
+params:
+  invoice_lag_days:
+    type: integer
+    default: { strategy: percentile, measure: appointment_to_invoice_lag, p: 95, fallback: 7 }
+prerequisites:
+  - "AppointmentCompleted IS NOT NULL"
+  - "ScheduleDate IS NOT NULL"
+predicate:
+  all:
+    - "AppointmentCompleted = 1"
+    - "ScheduleDate <= DATEADD(day, -{invoice_lag_days}, sysdatetime())"
+    - not_exists:
+        view: dbo.Invoices
+        "on": "dbo.Invoices.AppointmentID = dbo.Appointments.AppointmentID"
+        where: "dbo.Invoices.IsActive = 1"
+evidence: [AppointmentID, PatientID, ScheduleDate, AppointmentType, Provider, PracticeID]
+actions: [verify-invoice, raise-billing-task]
+resolution: "An active invoice exists for the appointment, or the finding is dismissed with a reason."

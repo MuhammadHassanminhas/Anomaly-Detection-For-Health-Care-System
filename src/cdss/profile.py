@@ -70,14 +70,11 @@ from cdss.source import AuditedSourceConnection
 from cdss.watermarks import classify_view_watermarks
 
 DEFAULT_VIEWS: tuple[str, ...] = (
-    "dbo.AppointmentMedications",
+    # D-025: scope reduced 10 -> 4 views (product-owner directive,
+    # 2026-07-16). Dropped: dbo.AppointmentMedications, fqb.Allergies,
+    # fqb.Diagnosis, dbo.Immunisation, OLAP.Medicine, dbo.PatientAlerts.
     "dbo.Disease",
     "dbo.Patient",
-    "fqb.Allergies",
-    "fqb.Diagnosis",
-    "dbo.Immunisation",
-    "OLAP.Medicine",
-    "dbo.PatientAlerts",
     "fqb.Invoices",
     "dbo.Appointments",
 )

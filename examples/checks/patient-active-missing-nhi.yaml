@@ -1,0 +1,22 @@
+# Constructs covered: all, comparisons, null test (predicate position, not just prerequisite).
+id: patient-active-missing-nhi
+title: Active patient has no NHI number recorded
+category: data-quality
+default_severity: high
+entity:
+  view: dbo.Patient
+  key: [ProfileID]
+  practice_column: PracticeID
+  base_filters:
+    - "IsDeleted = 0"
+params: {}
+prerequisites:
+  - "IsActive IS NOT NULL"
+predicate:
+  all:
+    - "IsActive = 1"
+    - "IsTestRecord = 0"
+    - "NHINumber IS NULL"
+evidence: [ProfileID, FirstName, FamilyName, EnrollmentDate, PracticeID]
+actions: [request-nhi-lookup]
+resolution: "NHINumber is recorded for the patient, or the finding is dismissed with a reason."

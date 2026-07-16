@@ -1,0 +1,27 @@
+# Constructs covered: not, in-against-catalog-domain (array param, fixed default
+# seeded from the semantic catalog's captured domain for AppointmentStatus at
+# authoring time -- human-reviewed, then stored as a static param per F4, never
+# re-derived from the catalog at compile time).
+id: appointment-invalid-status-code
+title: Appointment has a status code outside the reviewed domain
+category: data-quality
+default_severity: low
+entity:
+  view: dbo.Appointments
+  key: [AppointmentID]
+  practice_column: PracticeID
+  base_filters:
+    - "IsDeleted = 0"
+params:
+  valid_status_codes:
+    type: array
+    default:
+      strategy: fixed
+      value: [Booked, Arrived, Completed, Cancelled, DidNotAttend]
+prerequisites:
+  - "AppointmentStatus IS NOT NULL"
+predicate:
+  not: "AppointmentStatus IN ({valid_status_codes})"
+evidence: [AppointmentID, AppointmentStatus, ScheduleDate, PracticeID]
+actions: [flag-for-data-steward-review]
+resolution: "AppointmentStatus is corrected to a value in the reviewed domain, or the finding is dismissed with a reason."

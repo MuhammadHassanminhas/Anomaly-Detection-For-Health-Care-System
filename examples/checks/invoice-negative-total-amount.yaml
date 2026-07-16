@@ -1,0 +1,18 @@
+# Constructs covered: bare comparison predicate (no all/any wrapper required), empty params.
+id: invoice-negative-total-amount
+title: Invoice has a negative total amount
+category: data-quality
+default_severity: high
+entity:
+  view: fqb.Invoices
+  key: [InvoiceTransactionID]
+  practice_column: PracticeID
+  base_filters:
+    - "IsDeleted = 0"
+params: {}
+prerequisites:
+  - "TotalAmount IS NOT NULL"
+predicate: "TotalAmount < 0"
+evidence: [InvoiceTransactionID, TotalAmount, InvoiceDate, PracticeID]
+actions: [flag-for-data-steward-review]
+resolution: "TotalAmount is corrected to a non-negative value, or the finding is dismissed with a reason."

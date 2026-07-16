@@ -1,0 +1,26 @@
+# Constructs covered: all, comparisons, date arithmetic, fixed-strategy param default.
+id: invoice-stale-unpaid-balance
+title: Invoice unpaid well past its expected settlement window
+category: revenue-integrity
+default_severity: medium
+entity:
+  view: fqb.Invoices
+  key: [InvoiceTransactionID]
+  practice_column: PracticeID
+  base_filters:
+    - "IsDeleted = 0"
+    - "IsActive = 1"
+params:
+  stale_days:
+    type: integer
+    default: { strategy: fixed, value: 60 }
+prerequisites:
+  - "InvoiceDate IS NOT NULL"
+  - "UnpaidAmount IS NOT NULL"
+predicate:
+  all:
+    - "UnpaidAmount > 0"
+    - "InvoiceDate <= DATEADD(day, -{stale_days}, sysdatetime())"
+evidence: [InvoiceTransactionID, PatientID, InvoiceDate, UnpaidAmount, TotalAmount, PracticeID]
+actions: [raise-billing-task]
+resolution: "The invoice is paid in full, or the finding is dismissed with a reason."

@@ -6,14 +6,9 @@
     "product_version": "15.0.4460.4",
     "version_string": "Microsoft SQL Server 2019 (RTM-CU32-GDR) (KB5077469) - 15.0.4460.4 (X64) \n\tFeb 13 2026 17:00:40 \n\tCopyright (C) 2019 Microsoft Corporation\n\tDeveloper Edition (64-bit) on Windows Server 2019 Standard 10.0 <X64> (Build 17763: )\n"
   },
-  "generated_at": "2026-07-15T11:41:20.635648+00:00",
+  "generated_at": "2026-07-16T09:59:07.119639+00:00",
   "reconciliation": {
     "entries": [
-      {
-        "export_name": "dbo.AppointmentMedications",
-        "matched_object": "dbo.AppointmentMedications",
-        "status": "found_as_view"
-      },
       {
         "export_name": "dbo.Disease",
         "matched_object": "dbo.Disease",
@@ -22,31 +17,6 @@
       {
         "export_name": "dbo.Patient",
         "matched_object": "dbo.Patient",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "fqb.Allergies",
-        "matched_object": "fqb.Allergies",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "fqb.Diagnosis",
-        "matched_object": "fqb.Diagnosis",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.Immunisation",
-        "matched_object": "dbo.Immunisation",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "OLAP.Medicine",
-        "matched_object": "OLAP.Medicine",
-        "status": "found_as_view"
-      },
-      {
-        "export_name": "dbo.PatientAlerts",
-        "matched_object": "dbo.PatientAlerts",
         "status": "found_as_view"
       },
       {
@@ -60,7 +30,7 @@
         "status": "found_as_view"
       }
     ],
-    "export_object_count": 10,
+    "export_object_count": 4,
     "extra_objects": [
       "AIFinanceAssistant.VU_PracticeTotalExpenses",
       "AIFinanceAssistant.tblAIDashboards",
@@ -940,6 +910,7 @@
       "OLAP.Ethnicity",
       "OLAP.Gender",
       "OLAP.MedicationDiagnosis",
+      "OLAP.Medicine",
       "OLAP.MedicineDurationType",
       "OLAP.MedicineForm",
       "OLAP.MedicineFrequency",
@@ -2096,6 +2067,7 @@
       "dbo.Allergies",
       "dbo.Allergies_BAK",
       "dbo.AppointmentMaternity",
+      "dbo.AppointmentMedications",
       "dbo.AppointmentMedications_BAK",
       "dbo.AppointmentOutCome",
       "dbo.AppointmentReason",
@@ -2209,6 +2181,7 @@
       "dbo.HUHC",
       "dbo.IPUHomeLeave",
       "dbo.IPUPatientAdmission",
+      "dbo.Immunisation",
       "dbo.ImmunisationNIRInline",
       "dbo.ImmunisationSchedule",
       "dbo.ImmunisationSchedule_BAK",
@@ -2275,6 +2248,7 @@
       "dbo.PalliativeCareTemplateData",
       "dbo.ParkedDocuments",
       "dbo.PatientAccountAge",
+      "dbo.PatientAlerts",
       "dbo.PatientAlerts_Adeel",
       "dbo.PatientAlerts_BAK",
       "dbo.PatientContact",
@@ -2407,10 +2381,12 @@
       "ePrescription.tblPharmacyInfo",
       "ePrescription.tblPrescriptionMessage",
       "fqb.AccountHolderAndEmployerBalance",
+      "fqb.Allergies",
       "fqb.AppointmentMaternity",
       "fqb.AppointmentMedications",
       "fqb.Appointments",
       "fqb.Claims",
+      "fqb.Diagnosis",
       "fqb.Immunisation",
       "fqb.InvoiceDetail",
       "fqb.InvoicePayments",
@@ -2424,28 +2400,7 @@
   },
   "row_stats": [
     {
-      "duration_ms": 395.43,
-      "object_type": "view",
-      "qualified_name": "dbo.AppointmentMedications",
-      "row_count": 955356,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 10:46:46.203000",
-          "min_value": "1995-01-26 07:56:59"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-06 10:48:29.707000",
-          "min_value": "1995-01-26 07:56:59"
-        }
-      ]
-    },
-    {
-      "duration_ms": 61.005,
+      "duration_ms": 52.696,
       "object_type": "view",
       "qualified_name": "dbo.Disease",
       "row_count": 270481,
@@ -2453,7 +2408,7 @@
       "watermark_columns": []
     },
     {
-      "duration_ms": 119.858,
+      "duration_ms": 153.67,
       "object_type": "view",
       "qualified_name": "dbo.Patient",
       "row_count": 30746,
@@ -2474,99 +2429,7 @@
       ]
     },
     {
-      "duration_ms": 12.478,
-      "object_type": "view",
-      "qualified_name": "fqb.Allergies",
-      "row_count": 4177,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-26 11:00:11.230000",
-          "min_value": "1900-01-01 00:00:00"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-26 11:00:11.230000",
-          "min_value": "1993-06-06 00:00:00"
-        }
-      ]
-    },
-    {
-      "duration_ms": 642.219,
-      "object_type": "view",
-      "qualified_name": "fqb.Diagnosis",
-      "row_count": 5849,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-03 12:51:45.210000",
-          "min_value": "1976-10-15 00:00:00"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-11-03 12:51:45.210000",
-          "min_value": "1976-10-15 00:00:00"
-        }
-      ]
-    },
-    {
-      "duration_ms": 284.219,
-      "object_type": "view",
-      "qualified_name": "dbo.Immunisation",
-      "row_count": 153134,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-31 11:47:33.823000",
-          "min_value": "1981-11-18 17:01:55"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2017-10-31 11:49:43.603000",
-          "min_value": "1988-05-18 11:02:21"
-        }
-      ]
-    },
-    {
-      "duration_ms": 11.819,
-      "object_type": "view",
-      "qualified_name": "OLAP.Medicine",
-      "row_count": 65501,
-      "row_count_status": "exact",
-      "watermark_columns": []
-    },
-    {
-      "duration_ms": 186.121,
-      "object_type": "view",
-      "qualified_name": "dbo.PatientAlerts",
-      "row_count": 383870,
-      "row_count_status": "exact",
-      "watermark_columns": [
-        {
-          "column_name": "InsertedAt",
-          "data_type": "datetime",
-          "max_value": "2061-09-21 00:00:00",
-          "min_value": "2001-10-17 09:42:19"
-        },
-        {
-          "column_name": "UpdatedAt",
-          "data_type": "datetime",
-          "max_value": "2061-09-21 00:00:00",
-          "min_value": "2001-10-17 09:42:19"
-        }
-      ]
-    },
-    {
-      "duration_ms": 74.777,
+      "duration_ms": 103.695,
       "object_type": "view",
       "qualified_name": "fqb.Invoices",
       "row_count": 16442,
@@ -2587,7 +2450,7 @@
       ]
     },
     {
-      "duration_ms": 188.975,
+      "duration_ms": 228.463,
       "object_type": "view",
       "qualified_name": "dbo.Appointments",
       "row_count": 620854,
