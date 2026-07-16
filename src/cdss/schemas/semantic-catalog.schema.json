@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cdss.internal/schemas/semantic-catalog.schema.json",
+  "title": "CDSS Phase 1 semantic catalog",
+  "description": "Sole schema authority for the check compiler (D-017). Every in-scope view is profiled into one entry; sampled or cost-skipped items are marked explicitly, never silently absent.",
+  "type": "object",
+  "required": ["catalog_version", "produced_at", "source_database", "views", "relationships", "profiling_costs", "pruning_report"],
+  "additionalProperties": false,
+  "$defs": {
+    "topValue": {
+      "type": "object",
+      "required": ["value", "frequency"],
+      "additionalProperties": false,
+      "properties": {
+        "value": { "type": ["string", "null"] },
+        "frequency": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "columnProfile": {
+      "type": "object",
+      "required": [
+        "column_name",
+        "data_type",
+        "is_free_text",
+        "column_class",
+        "sampling",
+        "null_count",
+        "null_rate",
+        "distinct_count",
+        "min_value",
+        "max_value",
+        "top_values",
+        "string_length_stats",
+        "reference_samples",
+        "value_pattern_stats"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "column_name": { "type": "string" },
+        "data_type": { "type": "string" },
+        "is_free_text": { "type": "boolean" },
+        "column_class": {
+          "enum": ["identifier_or_freetext", "categorical_coded", "measure", "key", "reference_vocabulary"],
+          "description": "D-020/D-022/D-023 profiling-stage PHI policy: gates which values (if any) were captured for this column. reference_vocabulary is assigned only by the D-023 archetype override, never by column-level classification alone."
+        },
+        "sampling": {
+          "type": "object",
+          "required": ["sampled", "method"],
+          "additionalProperties": false,
+          "description": "D-018: reproducibility is encoded in the free-text method string (strategy + predicate), not a separate schema field.",
+          "properties": {
+            "sampled": { "type": "boolean" },
+            "method": { "type": "string" }
+          }
+        },
+        "null_count": { "type": ["integer", "null"], "minimum": 0 },
+        "null_rate": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "distinct_count": { "type": ["integer", "null"], "minimum": 0 },
+        "min_value": { "type": ["string", "null"] },
+        "max_value": { "type": ["string", "null"] },
+        "top_values": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/topValue" }
+        },
+        "string_length_stats": {
+          "type": ["object", "null"],
+          "required": ["min_length", "max_length", "avg_length"],
+          "additionalProperties": false,
+          "properties": {
+            "min_length": { "type": "integer", "minimum": 0 },
+            "max_length": { "type": "integer", "minimum": 0 },
+            "avg_length": { "type": "number", "minimum": 0 }
+          }
+        },
+        "reference_samples": {
+          "type": ["object", "null"],
+          "required": ["values", "sample_only"],
+          "additionalProperties": false,
+          "description": "D-023: illustrative only -- never the full vocabulary, never authoritative (see D-023's Phase 4 forward note).",
+          "properties": {
+            "values": {
+              "type": "array",
+              "items": { "type": "string" },
+              "maxItems": 100
+            },
+            "sample_only": { "const": true }
+          }
+        },
+        "value_pattern_stats": {
+          "type": ["object", "null"],
+          "required": ["trailing_tag_counts"],
+          "additionalProperties": false,
+          "properties": {
+            "trailing_tag_counts": {
+              "type": "object",
+              "additionalProperties": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    "candidateKey": {
+      "type": "object",
+      "required": ["columns", "distinct_count", "row_count", "evidence_method"],
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "distinct_count": { "type": "integer", "minimum": 0 },
+        "row_count": { "type": "integer", "minimum": 0 },
+        "evidence_method": { "enum": ["exact", "sampled"] }
+      }
+    },
+    "sentinelCandidate": {
+      "type": "object",
+      "required": ["column_name", "sentinel_type", "value", "frequency", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "column_name": { "type": "string" },
+        "sentinel_type": {
+          "enum": ["placeholder_date", "zero_or_negative_id", "empty_string_overload", "magic_value"]
+        },
+        "value": { "type": "string" },
+        "frequency": { "type": ["integer", "null"], "minimum": 0 },
+        "description": { "type": "string" }
+      }
+    },
+    "testRecordIndicator": {
+      "type": "object",
+      "required": ["column_name", "prevalence_count", "prevalence_rate"],
+      "additionalProperties": false,
+      "properties": {
+        "column_name": { "type": "string" },
+        "prevalence_count": { "type": "integer", "minimum": 0 },
+        "prevalence_rate": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "viewProfile": {
+      "type": "object",
+      "required": [
+        "qualified_name",
+        "row_count",
+        "row_count_status",
+        "archetype",
+        "columns",
+        "candidate_keys",
+        "watermark_classification",
+        "sentinels",
+        "test_record_indicators"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "qualified_name": { "type": "string" },
+        "row_count": { "type": ["integer", "null"], "minimum": 0 },
+        "row_count_status": { "enum": ["exact", "approximate", "indeterminate"] },
+        "archetype": {
+          "enum": ["reference", "fact"],
+          "description": "D-023: reference/dictionary vs. fact/event, decided before per-column classification. Default is fact when any signal is unverifiable."
+        },
+        "columns": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/columnProfile" }
+        },
+        "candidate_keys": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/candidateKey" }
+        },
+        "watermark_classification": {
+          "type": "object",
+          "required": ["status", "columns"],
+          "additionalProperties": false,
+          "properties": {
+            "status": { "enum": ["watermarkable", "fallback_needed"] },
+            "columns": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "sentinels": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/sentinelCandidate" }
+        },
+        "test_record_indicators": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/testRecordIndicator" }
+        }
+      }
+    },
+    "relationshipEdge": {
+      "type": "object",
+      "required": [
+        "from_view",
+        "from_column",
+        "to_view",
+        "to_column",
+        "status",
+        "containment_a_to_b",
+        "containment_b_to_a",
+        "orphan_count_a",
+        "orphan_count_b"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "from_view": { "type": "string" },
+        "from_column": { "type": "string" },
+        "to_view": { "type": "string" },
+        "to_column": { "type": "string" },
+        "status": { "enum": ["evaluated", "skipped_cost"] },
+        "containment_a_to_b": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "containment_b_to_a": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "orphan_count_a": { "type": ["integer", "null"], "minimum": 0 },
+        "orphan_count_b": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "queryCost": {
+      "type": "object",
+      "required": ["view", "operation", "duration_ms", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "view": { "type": "string" },
+        "operation": { "enum": ["column_profile", "candidate_key", "containment", "sentinel_scan", "watermark_check"] },
+        "duration_ms": { "type": "number", "minimum": 0 },
+        "status": { "enum": ["ok", "timeout", "skipped_cost"] }
+      }
+    }
+  },
+  "properties": {
+    "catalog_version": { "type": "integer", "minimum": 1 },
+    "produced_at": { "type": "string" },
+    "source_database": { "type": "string" },
+    "views": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/viewProfile" }
+    },
+    "relationships": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/relationshipEdge" }
+    },
+    "profiling_costs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/queryCost" }
+    },
+    "pruning_report": {
+      "type": "object",
+      "required": ["pairs_considered", "pairs_pruned", "pairs_evaluated", "pairs_skipped_cost"],
+      "additionalProperties": false,
+      "description": "D-021: pair/containment candidate-pair funnel, so coverage gaps from pruning vs. cost-skipping are both explicit, never silently absent.",
+      "properties": {
+        "pairs_considered": { "type": "integer", "minimum": 0 },
+        "pairs_pruned": { "type": "integer", "minimum": 0 },
+        "pairs_evaluated": { "type": "integer", "minimum": 0 },
+        "pairs_skipped_cost": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}
