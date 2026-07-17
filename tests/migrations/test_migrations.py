@@ -136,7 +136,8 @@ def test_finding_events_append_only_update_rejected(conn: sa.Connection) -> None
     event_id = (
         conn.execute(
             sa.text(
-                "INSERT INTO finding_events (finding_id, event) VALUES (:fid, 'created') RETURNING id"
+                "INSERT INTO finding_events (finding_id, event) "
+                "VALUES (:fid, 'created') RETURNING id"
             ),
             {"fid": finding_id},
         )
@@ -155,7 +156,8 @@ def test_finding_events_append_only_delete_rejected(conn: sa.Connection) -> None
     event_id = (
         conn.execute(
             sa.text(
-                "INSERT INTO finding_events (finding_id, event) VALUES (:fid, 'created') RETURNING id"
+                "INSERT INTO finding_events (finding_id, event) "
+                "VALUES (:fid, 'created') RETURNING id"
             ),
             {"fid": finding_id},
         )

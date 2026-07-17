@@ -137,12 +137,15 @@ def _compile_predicate(node: PredicateNode, array_expansions: dict[str, list[str
     raise TypeError(f"unrecognized predicate node: {node!r}")
 
 
-def _project_columns(doc: CheckDoc) -> tuple[list[str], list[str]]:
+def project_columns(doc: CheckDoc) -> tuple[list[str], list[str]]:
     """Return `(head, tail)`: `head` is entity key columns + practice_column
     (author order, deduplicated); `tail` is evidence columns not already in
     `head` (author order). Deduplication is a linear author-order scan, never
     an unordered set, so the projected column list is deterministic (D-021's
-    "never a set for anything that must stay ordered" lesson, applied here)."""
+    "never a set for anything that must stay ordered" lesson, applied here).
+    Public (not compiler-internal): the Phase 3 executor needs this exact
+    head/tail split to know where `tri_state` sits in a result row and how
+    to re-associate the rest of the row with column names."""
     head: list[str] = list(doc.entity.key)
     if doc.entity.practice_column not in head:
         head.append(doc.entity.practice_column)
@@ -162,7 +165,7 @@ def compile_check(doc: CheckDoc, *, watermark_column: str | None = None) -> Comp
     the Phase 3 executor); if omitted, no increment clause is emitted -- an
     un-watermarked view's fallback strategy is Phase 3's decision, not the
     compiler's (ARCHITECTURE.md §1.2)."""
-    head, tail = _project_columns(doc)
+    head, tail = project_columns(doc)
     array_expansions, array_expanded_schema = _expand_array_params(doc.params)
     predicate_sql = _compile_predicate(doc.predicate, array_expansions)
     prereq_condition = (
@@ -211,4 +214,4 @@ def compile_check(doc: CheckDoc, *, watermark_column: str | None = None) -> Comp
     return CompiledCheck(sql_text=sql_text, sql_hash=sql_hash, params_schema=params_schema)
 
 
-__all__ = ["CompiledCheck", "compile_check"]
+__all__ = ["CompiledCheck", "compile_check", "project_columns"]

@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from cdss.source import AuditedSourceConnection, StatementRejectedError
+from cdss.source import AuditedSourceConnection, AuditEvent, StatementRejectedError
 
 
 class FakeCursor:
@@ -212,3 +212,104 @@ def test_audit_line_records_params(tmp_path: Path) -> None:
     events = _read_audit_lines(tmp_path)
     assert len(events) == 1
     assert events[0]["params"] == [42]
+
+
+def test_audit_line_records_non_json_native_params(tmp_path: Path) -> None:
+    audited, _ = _make_source(
+        tmp_path, rows=[(1,)], allowed_objects=frozenset({"dbo.vw_appointments"})
+    )
+    watermark = datetime(2026, 1, 1, tzinfo=UTC)
+    audited.execute_query(
+        "SELECT * FROM dbo.vw_appointments WHERE updated_at > ?", params=[watermark]
+    )
+    events = _read_audit_lines(tmp_path)
+    assert len(events) == 1
+    assert events[0]["params"] == [str(watermark)]
+
+
+def test_audit_line_run_id_defaults_to_none(tmp_path: Path) -> None:
+    audited, _ = _make_source(tmp_path, rows=[(1,)])
+    audited.execute_query("SELECT @@VERSION")
+    events = _read_audit_lines(tmp_path)
+    assert events[0]["run_id"] is None
+
+
+def test_audit_line_records_run_id_when_supplied(tmp_path: Path) -> None:
+    audited, _ = _make_source(tmp_path, rows=[(1,)])
+    audited.execute_query("SELECT @@VERSION", run_id="run-123")
+    events = _read_audit_lines(tmp_path)
+    assert events[0]["run_id"] == "run-123"
+
+
+# --- app-DB audit sink (D-016 dual write) --------------------------------------
+
+
+class FakeAppDbSink:
+    def __init__(self) -> None:
+        self.recorded: list[AuditEvent] = []
+
+    def record(self, event: AuditEvent) -> None:
+        self.recorded.append(event)
+
+
+def test_app_db_sink_called_once_per_accepted_statement(tmp_path: Path) -> None:
+    sink = FakeAppDbSink()
+    fake_conn = FakeConnection(rows=[(1,)])
+    audited = AuditedSourceConnection(
+        fake_conn,  # type: ignore[arg-type]
+        component="test-component",
+        audit_dir=tmp_path,
+        clock=lambda: datetime(2026, 7, 14, 3, 0, 0, tzinfo=UTC),
+        app_db_sink=sink,
+    )
+    audited.execute_query("SELECT @@VERSION")
+    audited.execute_query("SELECT @@VERSION")
+    assert len(sink.recorded) == 2
+    assert sink.recorded[0].statement == "SELECT @@VERSION"
+
+
+def test_app_db_sink_receives_run_id(tmp_path: Path) -> None:
+    sink = FakeAppDbSink()
+    fake_conn = FakeConnection(rows=[(1,)])
+    audited = AuditedSourceConnection(
+        fake_conn,  # type: ignore[arg-type]
+        component="test-component",
+        audit_dir=tmp_path,
+        app_db_sink=sink,
+    )
+    audited.execute_query("SELECT @@VERSION", run_id="run-456")
+    assert sink.recorded[0].run_id == "run-456"
+
+
+def test_app_db_sink_not_called_when_statement_rejected(tmp_path: Path) -> None:
+    sink = FakeAppDbSink()
+    fake_conn = FakeConnection()
+    audited = AuditedSourceConnection(
+        fake_conn,  # type: ignore[arg-type]
+        component="test-component",
+        audit_dir=tmp_path,
+        app_db_sink=sink,
+    )
+    with pytest.raises(StatementRejectedError):
+        audited.execute_query("DROP TABLE dbo.vw_appointments")
+    assert sink.recorded == []
+
+
+def test_no_app_db_sink_is_optional(tmp_path: Path) -> None:
+    audited, _ = _make_source(tmp_path, rows=[(1,)])
+    # Must not raise even though no sink was supplied.
+    audited.execute_query("SELECT @@VERSION")
+
+
+def test_with_allowed_objects_preserves_app_db_sink(tmp_path: Path) -> None:
+    sink = FakeAppDbSink()
+    fake_conn = FakeConnection(rows=[(1,)])
+    audited = AuditedSourceConnection(
+        fake_conn,  # type: ignore[arg-type]
+        component="test-component",
+        audit_dir=tmp_path,
+        app_db_sink=sink,
+    )
+    expanded = audited.with_allowed_objects(frozenset({"dbo.vw_appointments"}))
+    expanded.execute_query("SELECT * FROM dbo.vw_appointments")
+    assert len(sink.recorded) == 1

@@ -14,6 +14,7 @@ from typing import Any
 
 import jsonschema
 import pytest
+import yaml
 
 from cdss.dsl import (
     STUB_ACTION_LIBRARY,
@@ -25,6 +26,7 @@ from cdss.dsl import (
     ExistsNode,
     NotExistsNode,
     NotNode,
+    check_doc_from_dict,
     parse_check_document,
     validate_check_against_catalog,
 )
@@ -167,6 +169,16 @@ def test_parse_check_document_parses_all_six_checked_in_examples() -> None:
     for path in sorted(EXAMPLES_DIR.glob("*.yaml")):
         doc = parse_check_document(path.read_text(encoding="utf-8"))
         assert doc.id
+
+
+def test_check_doc_from_dict_matches_parse_check_document() -> None:
+    text = _valid_doc_text()
+    assert check_doc_from_dict(yaml.safe_load(text)) == parse_check_document(text)
+
+
+def test_check_doc_from_dict_rejects_structurally_invalid_dict() -> None:
+    with pytest.raises(CheckValidationError):
+        check_doc_from_dict({"id": "missing-everything-else"})
 
 
 def test_parse_check_document_rejects_missing_required_field() -> None:

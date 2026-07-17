@@ -177,7 +177,14 @@ def parse_check_document(text: str) -> CheckDoc:
     any structural (JSON Schema) violation -- the schema is authoritative for
     shape; this function never second-guesses it, only builds the typed
     model once the schema has already accepted the document."""
-    raw = yaml.safe_load(text)
+    return check_doc_from_dict(yaml.safe_load(text))
+
+
+def check_doc_from_dict(raw: dict[str, Any]) -> CheckDoc:
+    """Same as `parse_check_document`, starting from an already-parsed dict
+    rather than YAML text -- the Phase 3 executor's entry point, since a
+    check_version's `definition` is stored as JSONB (already a dict), not
+    YAML text needing a redundant re-serialize/re-parse round trip."""
     try:
         jsonschema.validate(instance=raw, schema=_load_schema())
     except jsonschema.ValidationError as exc:
@@ -367,6 +374,7 @@ __all__ = [
     "ParamDef",
     "ParamDefault",
     "PredicateNode",
+    "check_doc_from_dict",
     "parse_check_document",
     "validate_check_against_catalog",
 ]

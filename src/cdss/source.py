@@ -61,8 +61,12 @@ class AuditEvent:
     duration_ms: float
     rows_returned: int
     component: str
+    run_id: str | None = None
 
     def to_json(self) -> str:
+        # default=str: params can be non-JSON-native (e.g. datetime, from
+        # Phase 3 executor watermark binding) -- the audit line must never
+        # fail to write over a param type json can't natively serialize.
         return json.dumps(
             {
                 "statement": self.statement,
@@ -71,9 +75,19 @@ class AuditEvent:
                 "duration_ms": self.duration_ms,
                 "rows_returned": self.rows_returned,
                 "component": self.component,
+                "run_id": self.run_id,
             },
             sort_keys=True,
+            default=str,
         )
+
+
+class AppDbAuditSink(Protocol):
+    """The app-DB half of the dual audit write (D-016): mirrors an accepted
+    statement's AuditEvent into source_audit_log. JSONL remains primary --
+    this sink is an additional, optional destination for the same event."""
+
+    def record(self, event: AuditEvent) -> None: ...
 
 
 def _validate_statement(statement: str, allowed_objects: frozenset[str]) -> exp.Select:
@@ -119,12 +133,14 @@ class AuditedSourceConnection:
         allowed_objects: frozenset[str] = frozenset(),
         audit_dir: Path = DEFAULT_AUDIT_DIR,
         clock: Callable[[], datetime] | None = None,
+        app_db_sink: AppDbAuditSink | None = None,
     ) -> None:
         self._connection = connection
         self._component = component
         self._allowed_objects = allowed_objects
         self._audit_dir = audit_dir
         self._clock = clock or (lambda: datetime.now(UTC))
+        self._app_db_sink = app_db_sink
 
     def execute_query(
         self,
@@ -132,6 +148,7 @@ class AuditedSourceConnection:
         params: Sequence[Any] | None = None,
         *,
         timeout_seconds: int | None = None,
+        run_id: str | None = None,
     ) -> list[tuple[Any, ...]]:
         _validate_statement(statement, self._allowed_objects)
 
@@ -146,16 +163,18 @@ class AuditedSourceConnection:
         rows = list(cursor.fetchall())
         duration_ms = (time.perf_counter() - start) * 1000
 
-        self._write_audit_event(
-            AuditEvent(
-                statement=statement,
-                params=tuple(params or ()),
-                timestamp=self._clock().isoformat(),
-                duration_ms=round(duration_ms, 3),
-                rows_returned=len(rows),
-                component=self._component,
-            )
+        event = AuditEvent(
+            statement=statement,
+            params=tuple(params or ()),
+            timestamp=self._clock().isoformat(),
+            duration_ms=round(duration_ms, 3),
+            rows_returned=len(rows),
+            component=self._component,
+            run_id=run_id,
         )
+        self._write_audit_event(event)
+        if self._app_db_sink is not None:
+            self._app_db_sink.record(event)
         return rows
 
     def with_allowed_objects(self, allowed_objects: frozenset[str]) -> AuditedSourceConnection:
@@ -170,6 +189,7 @@ class AuditedSourceConnection:
             allowed_objects=self._allowed_objects | allowed_objects,
             audit_dir=self._audit_dir,
             clock=self._clock,
+            app_db_sink=self._app_db_sink,
         )
 
     def _write_audit_event(self, event: AuditEvent) -> None:
@@ -181,6 +201,7 @@ class AuditedSourceConnection:
 
 
 __all__ = [
+    "AppDbAuditSink",
     "AuditEvent",
     "AuditedSourceConnection",
     "CATALOG_SCHEMA_ALLOWLIST",
