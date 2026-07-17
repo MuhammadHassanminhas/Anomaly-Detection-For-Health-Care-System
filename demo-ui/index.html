@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CDSS — The Review Gate (demo)</title>
+<style>
+  /* ============================================================
+     CDSS Review Gate — presentation-only demo.
+     Not imported by, or coupled to, the CDSS codebase in any way.
+     Every command output below is pre-recorded from a real session
+     against the real check library on 2026-07-17 — nothing here is
+     invented, but nothing here is live either. Safe to delete this
+     whole folder at any time with zero effect on the actual system.
+     ============================================================ */
+
+  :root {
+    --bg: #0b1220;
+    --bg-raised: #0f1830;
+    --panel: #131d38;
+    --panel-2: #16213f;
+    --border: #263252;
+    --ink: #e4e9f4;
+    --muted: #8996b3;
+    --faint: #5c6785;
+    --teal: #34c3b3;
+    --teal-dim: #1f7a70;
+    --amber: #e7ad4a;
+    --amber-dim: #8a6a2c;
+    --rose: #e56e86;
+    --rose-dim: #8a3f4f;
+    --serif: Palatino, "Palatino Linotype", "Iowan Old Style", Georgia, serif;
+    --mono: "JetBrains Mono", "SF Mono", "Cascadia Code", "Fira Code", Consolas, monospace;
+    --sans: "Segoe UI", -apple-system, BlinkMacSystemFont, Inter, Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(52,195,179,0.08), transparent),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(231,173,74,0.06), transparent);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: var(--teal); }
+  ::selection { background: var(--teal-dim); color: #fff; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    border-bottom: 1px solid var(--border);
+    padding: 18px 0;
+  }
+  .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .brand { display: flex; align-items: baseline; gap: 10px; font-family: var(--mono); }
+  .brand .mark { color: var(--teal); font-weight: 700; letter-spacing: 0.02em; }
+  .brand .sub { color: var(--muted); font-size: 0.85rem; }
+  .demo-badge {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--amber);
+    border: 1px solid var(--amber-dim);
+    background: rgba(231,173,74,0.08);
+    padding: 5px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  /* ---------- hero ---------- */
+  .hero { padding: 64px 0 40px; }
+  .eyebrow {
+    font-family: var(--mono);
+    color: var(--teal);
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0 0 14px;
+  }
+  h1.title {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    line-height: 1.08;
+    margin: 0 0 18px;
+    max-width: 16ch;
+    letter-spacing: -0.01em;
+  }
+  h1.title em { font-style: italic; color: var(--teal); }
+  .lede {
+    font-size: 1.12rem;
+    color: var(--muted);
+    max-width: 56ch;
+    margin: 0 0 8px;
+  }
+  .lede-note {
+    font-size: 0.92rem;
+    color: var(--faint);
+    max-width: 56ch;
+    margin: 0 0 40px;
+  }
+
+  /* ---------- shared panel look ---------- */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  /* ---------- terminal ---------- */
+  .terminal {
+    background: #0a0f1e;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6);
+  }
+  .terminal .chrome {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 14px;
+    background: var(--bg-raised);
+    border-bottom: 1px solid var(--border);
+  }
+  .terminal .dot { width: 10px; height: 10px; border-radius: 50%; opacity: 0.85; }
+  .terminal .dot.r { background: #e5686f; }
+  .terminal .dot.y { background: #e7c15a; }
+  .terminal .dot.g { background: #58c294; }
+  .terminal .chrome .path {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--faint);
+    margin-left: 8px;
+  }
+  .terminal pre {
+    margin: 0;
+    padding: 22px 24px 26px;
+    font-family: var(--mono);
+    font-size: 0.88rem;
+    line-height: 1.62;
+    color: #d9e6e2;
+    min-height: 190px;
+    max-height: 46vh;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .terminal pre .cmd { color: var(--teal); }
+  .terminal pre .cmd::before { content: "$ "; color: var(--faint); }
+  .terminal pre .ok { color: #7fe0c9; }
+  .terminal pre .warn { color: var(--amber); }
+  .terminal pre .bad { color: var(--rose); }
+  .terminal pre .dim { color: var(--faint); }
+  .cursor {
+    display: inline-block;
+    width: 8px; height: 1.1em;
+    background: var(--teal);
+    vertical-align: text-bottom;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .cursor { animation: none; opacity: 1; } }
+
+  /* ---------- main two-column layout ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 32px;
+    padding: 8px 0 64px;
+    align-items: start;
+  }
+  @media (max-width: 880px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  /* phase map */
+  .phase-map { position: sticky; top: 24px; }
+  .phase-map h2 {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 16px;
+    font-weight: 600;
+  }
+  .phase {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .phase:last-child { border-bottom: none; }
+  .phase .num {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--faint);
+    padding-top: 2px;
+  }
+  .phase.done .num { color: var(--teal); }
+  .phase.current .num { color: var(--amber); }
+  .phase h3 {
+    margin: 0 0 2px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .phase.upcoming h3 { color: var(--muted); }
+  .phase p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--faint);
+    line-height: 1.45;
+  }
+  .phase-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+    padding: 1px 7px;
+    border-radius: 5px;
+    margin-left: 8px;
+    vertical-align: 1px;
+  }
+  .phase.done .phase-tag { color: var(--teal); background: rgba(52,195,179,0.12); }
+  .phase.current .phase-tag { color: var(--amber); background: rgba(231,173,74,0.14); }
+
+  /* console */
+  .console h2 {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 16px;
+    font-weight: 600;
+  }
+  .cmd-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .cmd-btn {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--ink);
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 14px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+  }
+  .cmd-btn:hover { border-color: var(--teal-dim); background: rgba(52,195,179,0.08); }
+  .cmd-btn:active { transform: translateY(1px); }
+  .cmd-btn:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+  .cmd-btn.active {
+    border-color: var(--teal);
+    background: rgba(52,195,179,0.14);
+    color: #eafff9;
+  }
+  .cmd-btn .verb { color: var(--faint); }
+  .cmd-btn.tone-reject .verb { color: var(--rose); }
+  .cmd-btn.tone-approve .verb { color: var(--teal); }
+
+  /* explain card */
+  .explain {
+    margin-top: 16px;
+    padding: 16px 18px;
+    border-left: 3px solid var(--amber);
+    background: rgba(231,173,74,0.06);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.92rem;
+    color: #e8dfc9;
+  }
+  .explain b { color: var(--amber); font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; display: block; margin-bottom: 6px; }
+
+  /* ---------- next section ---------- */
+  .next {
+    border-top: 1px solid var(--border);
+    padding: 56px 0 80px;
+  }
+  .next h2 {
+    font-family: var(--serif);
+    font-size: 1.7rem;
+    font-weight: 400;
+    margin: 0 0 8px;
+  }
+  .next .sub { color: var(--muted); max-width: 60ch; margin: 0 0 32px; }
+  .next-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 880px) { .next-grid { grid-template-columns: 1fr; } }
+  .next-card {
+    padding: 22px 20px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .next-card .phases { font-family: var(--mono); font-size: 0.72rem; color: var(--teal); letter-spacing: 0.04em; margin-bottom: 10px; }
+  .next-card h3 { margin: 0 0 8px; font-size: 1.02rem; font-weight: 600; }
+  .next-card p { margin: 0; font-size: 0.87rem; color: var(--faint); }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 28px 0 60px;
+    color: var(--faint);
+    font-size: 0.82rem;
+  }
+  footer code { font-family: var(--mono); color: var(--muted); }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="wrap">
+      <div class="brand">
+        <span class="mark">CDSS</span>
+        <span class="sub">clinical decision support · anomaly detection</span>
+      </div>
+      <div class="demo-badge">DEMO — pre-recorded output, not wired to the live system</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="hero">
+      <p class="eyebrow">Phase 4 · Step 7</p>
+      <h1 class="title">Every check a machine drafts still needs <em>someone</em> to say yes.</h1>
+      <p class="lede">This is the review gate: the one place a check moves from "the system suggested this" to "a person is willing to act on this." Nothing reaches a clinic's queue without going through it.</p>
+      <p class="lede-note">The commands below are real — this is the actual command-line tool the team uses. The output is a recording from a real review session, played back here so it can be shown without a live database connection in the room.</p>
+    </div>
+
+    <div class="layout">
+
+      <aside class="phase-map">
+        <h2>Where this fits</h2>
+
+        <div class="phase done">
+          <div class="num">0</div>
+          <div><h3>Environment &amp; access</h3><p>Confirmed the system can read the database — and only the database.</p></div>
+        </div>
+        <div class="phase done">
+          <div class="num">1</div>
+          <div><h3>Schema intelligence</h3><p>Profiled every table and column so every later step knows what's actually real, not documented.</p></div>
+        </div>
+        <div class="phase done">
+          <div class="num">2</div>
+          <div><h3>Check DSL &amp; compiler</h3><p>Built the language a check is written in, and the compiler that turns it into real SQL.</p></div>
+        </div>
+        <div class="phase done">
+          <div class="num">3</div>
+          <div><h3>App database &amp; executor</h3><p>Built the system of record: every run, every finding, a full audit trail.</p></div>
+        </div>
+        <div class="phase current">
+          <div class="num">4</div>
+          <div><h3>Seed check library <span class="phase-tag">you are here</span></h3><p>Drafting the first checks and reviewing them — this page is step 7 of 7.</p></div>
+        </div>
+        <div class="phase upcoming">
+          <div class="num">5</div>
+          <div><h3>Explanation layer</h3><p>Turn a finding into a sentence a person can act on — without ever letting the AI invent a number.</p></div>
+        </div>
+        <div class="phase upcoming">
+          <div class="num">6</div>
+          <div><h3>Feedback &amp; calibration</h3><p>Track which checks are actually useful; quietly retire the ones that aren't.</p></div>
+        </div>
+        <div class="phase upcoming">
+          <div class="num">7</div>
+          <div><h3>Discovery layer</h3><p>Let the system suggest brand-new checks nobody's written yet — still gated by this same review step.</p></div>
+        </div>
+        <div class="phase upcoming">
+          <div class="num">8</div>
+          <div><h3>Evaluation harness</h3><p>Prove it catches real problems, on a test copy, before it's trusted on live data.</p></div>
+        </div>
+        <div class="phase upcoming">
+          <div class="num">9</div>
+          <div><h3>API</h3><p>Give the review queue a real backend.</p></div>
+        </div>
+        <div class="phase upcoming">
+          <div class="num">10</div>
+          <div><h3>Triage UI</h3><p>Give staff a real screen to work from — not a command line.</p></div>
+        </div>
+        <div class="phase upcoming">
+          <div class="num">11</div>
+          <div><h3>Production hardening</h3><p>Lock it down, log everything — make it safe to run on a Tuesday.</p></div>
+        </div>
+      </aside>
+
+      <section class="console">
+        <h2>Try the review gate</h2>
+        <div class="cmd-buttons">
+          <button class="cmd-btn active" data-cmd="list"><span class="verb">list</span> — see the queue</button>
+          <button class="cmd-btn" data-cmd="show"><span class="verb">show</span> — inspect one check</button>
+          <button class="cmd-btn tone-approve" data-cmd="approve"><span class="verb">approve</span> — activate it</button>
+          <button class="cmd-btn tone-reject" data-cmd="reject"><span class="verb">reject</span> — turn one down</button>
+          <button class="cmd-btn" data-cmd="amend"><span class="verb">amend</span> — send back a correction</button>
+        </div>
+
+        <div class="terminal">
+          <div class="chrome">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="path">team-lead@cdss — cdss.review</span>
+          </div>
+          <pre id="term"></pre>
+        </div>
+
+        <div class="explain" id="explain">
+          <b>What just happened</b>
+          <span id="explain-text">Loading…</span>
+        </div>
+      </section>
+
+    </div>
+
+    <div class="next">
+      <h2>What this earns next</h2>
+      <p class="sub">The review gate isn't the finish line — it's what makes everything after it trustworthy. Once a check is active, here's what starts using it.</p>
+      <div class="next-grid">
+        <div class="next-card">
+          <div class="phases">Phase 5</div>
+          <h3>Findings get a voice</h3>
+          <p>An approved check that fires produces a finding. Phase 5 turns that into a plain sentence for staff — with every number filled in by code, never guessed by the model.</p>
+        </div>
+        <div class="next-card">
+          <div class="phases">Phases 6 &amp; 7</div>
+          <h3>The library keeps itself honest</h3>
+          <p>Staff feedback on dismissed findings feeds a precision score per check, per practice. Checks that cry wolf too often get quietly demoted — and new candidate checks flow back through this same review gate.</p>
+        </div>
+        <div class="next-card">
+          <div class="phases">Phases 9 &amp; 10</div>
+          <h3>A real screen for real people</h3>
+          <p>Everything shown on this page as a terminal command becomes an API and a proper triage UI — a queue, evidence, one-click dismiss-with-reason. This page is a preview of that workflow, not a replacement for it.</p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Standalone demo page. Lives in <code>demo-ui/</code>, outside <code>src/</code> — nothing in the codebase imports or depends on it. Delete the folder any time with zero effect on CDSS itself.
+    </footer>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var TRANSCRIPTS = {
+    list: {
+      lines: [
+        { t: "cmd", text: "python -m cdss.review list --status draft" },
+        { t: "gap" },
+        { t: "ok",  text: "199 checks waiting for review" },
+        { t: "dim", text: "  182 from profiling    (found by reading the data itself)" },
+        { t: "dim", text: "   11 from the LLM       (drafted from a redacted summary — no patient data reaches it)" },
+        { t: "dim", text: "    6 hand-written       (the original worked examples)" },
+        { t: "gap" },
+        { t: "plain", text: "by category" },
+        { t: "dim", text: "  data-quality        147" },
+        { t: "dim", text: "  referential           38" },
+        { t: "dim", text: "  workflow               6" },
+        { t: "dim", text: "  care-gap               6" },
+        { t: "dim", text: "  revenue-integrity      2" }
+      ],
+      explain: "None of these 199 are active yet — every one is a <b>draft</b>. A draft becomes a check a practice actually runs against only once someone approves it below. Nothing here has touched a real patient."
+    },
+    show: {
+      lines: [
+        { t: "cmd", text: "python -m cdss.review show patient-active-missing-nhi" },
+        { t: "gap" },
+        { t: "plain", text: "slug: patient-active-missing-nhi   status: draft   version: 1" },
+        { t: "plain", text: "title: Active patient has no NHI number recorded" },
+        { t: "plain", text: "category: data-quality   severity: high   source: manual" },
+        { t: "gap" },
+        { t: "plain", text: "definition" },
+        { t: "dim", text: "  entity:        dbo.Patient, key=[ProfileID]" },
+        { t: "dim", text: "  base filters:  IsDeleted = 0" },
+        { t: "dim", text: "  must know:     IsActive IS NOT NULL" },
+        { t: "dim", text: "  fails when:    IsActive = 1 AND IsTestRecord = 0 AND NHINumber IS NULL" },
+        { t: "dim", text: "  shows staff:   ProfileID, FirstName, FamilyName, EnrollmentDate, PracticeID" },
+        { t: "dim", text: "  suggests:      request-nhi-lookup" },
+        { t: "gap" },
+        { t: "plain", text: "compiled SQL (same input always produces this exact SQL)" },
+        { t: "dim", text: "  SELECT [ProfileID]," },
+        { t: "dim", text: "    CASE WHEN IsActive IS NOT NULL THEN" },
+        { t: "dim", text: "      CASE WHEN IsActive = 1 AND IsTestRecord = 0" },
+        { t: "dim", text: "                AND NHINumber IS NULL THEN 'fail'" },
+        { t: "dim", text: "           WHEN NOT (...) THEN 'pass'" },
+        { t: "dim", text: "           ELSE 'indeterminate' END" },
+        { t: "dim", text: "    ELSE 'indeterminate' END AS tri_state, ..." },
+        { t: "dim", text: "  FROM dbo.Patient" },
+        { t: "dim", text: "  WHERE (IsDeleted = 0)" },
+        { t: "gap" },
+        { t: "plain", text: "fixture dry-run (synthetic test data, not real patients)" },
+        { t: "ok",  text: "  status=ok   examined=6   pass=3   fail=2   indeterminate=1" }
+      ],
+      explain: "This is the full case file for one draft, before anyone decides anything: the exact rule, the exact SQL it becomes, and proof of what it finds on safe test data. <b>indeterminate</b> means \"couldn't tell\" — a missing prerequisite, never guessed as a pass or a fail."
+    },
+    approve: {
+      lines: [
+        { t: "cmd", text: "python -m cdss.review approve patient-active-missing-nhi --reviewer \"Team Lead\"" },
+        { t: "gap" },
+        { t: "dim", text: "running the fixture test first…" },
+        { t: "ok", text: "  fail >= 1 ✓   pass >= 1 ✓   (indeterminate not required for this one)" },
+        { t: "ok", text: "fixture test passed — approving" },
+        { t: "gap" },
+        { t: "ok", text: "approved 'patient-active-missing-nhi'" },
+        { t: "plain", text: "  status:       draft → active" },
+        { t: "plain", text: "  reviewed_by:  Team Lead" }
+      ],
+      explain: "The tool refuses to activate a check that can't prove itself on test data first — even for the person approving it. That check runs automatically, every single time, whether or not anyone remembers to ask for it."
+    },
+    reject: {
+      lines: [
+        { t: "cmd", text: "python -m cdss.review reject appointment-cancelled-but-no-flag --reviewer \"Team Lead\" \\" },
+        { t: "cmd2", text: "    --reason \"self-referencing join — can't tell fail from pass\"" },
+        { t: "gap" },
+        { t: "dim", text: "running the fixture test first…" },
+        { t: "bad", text: "  status=error" },
+        { t: "bad", text: "  the check compares a row to itself in a way the query can't resolve" },
+        { t: "bad", text: "fixture test failed" },
+        { t: "gap" },
+        { t: "bad", text: "rejected 'appointment-cancelled-but-no-flag'" },
+        { t: "plain", text: "  status:       draft → rejected" },
+        { t: "plain", text: "  reviewed_by:  Team Lead" },
+        { t: "plain", text: "  reason:       self-referencing join — can't tell fail from pass" }
+      ],
+      explain: "This one was actually written by the AI, and it read fine at a glance — the mistake only shows up when it's actually run. That's exactly what this gate is for: catching a plausible-looking check before a human ever has to notice it's wrong."
+    },
+    amend: {
+      lines: [
+        { t: "cmd", text: "python -m cdss.review amend invoice-negative-total-amount --reviewer \"Team Lead\" \\" },
+        { t: "cmd2", text: "    --definition-file tightened.json --note \"exclude rounding noise under $0.01\"" },
+        { t: "gap" },
+        { t: "ok", text: "amended 'invoice-negative-total-amount' → check_version 2" },
+        { t: "plain", text: "  status reset:  active → draft" },
+        { t: "dim",  text: "  (needs review again, even though version 1 was already live)" }
+      ],
+      explain: "Editing a check never overwrites it — it adds a new version and sends the whole thing back through review. Every past version stays on record, so there's always a paper trail of exactly what changed, when, and why."
+    }
+  };
+
+  var termEl = document.getElementById("term");
+  var explainEl = document.getElementById("explain-text");
+  var buttons = document.querySelectorAll(".cmd-btn");
+  var running = false;
+
+  function escapeHtml(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function lineHtml(line) {
+    if (line.t === "gap") return "\n";
+    if (line.t === "cmd") return '<span class="cmd">' + escapeHtml(line.text) + "</span>\n";
+    if (line.t === "cmd2") return '<span class="dim">' + escapeHtml(line.text) + "</span>\n";
+    var cls = { ok: "ok", bad: "bad", dim: "dim", warn: "warn" }[line.t] || "";
+    return (cls ? '<span class="' + cls + '">' : "<span>") + escapeHtml(line.text) + "</span>\n";
+  }
+
+  function render(cmdKey) {
+    if (running) return;
+    var data = TRANSCRIPTS[cmdKey];
+    if (!data) return;
+    running = true;
+
+    buttons.forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-cmd") === cmdKey);
+    });
+
+    var fullHtml = data.lines.map(lineHtml).join("");
+    explainEl.innerHTML = data.explain;
+
+    if (reduceMotion) {
+      termEl.innerHTML = fullHtml;
+      running = false;
+      return;
+    }
+
+    // Typewriter effect, line by line (fast — this is a demo, not a chore).
+    termEl.innerHTML = "";
+    var i = 0;
+    var cursor = document.createElement("span");
+    cursor.className = "cursor";
+
+    function nextLine() {
+      if (i >= data.lines.length) {
+        running = false;
+        return;
+      }
+      var span = document.createElement("span");
+      span.innerHTML = lineHtml(data.lines[i]);
+      termEl.appendChild(span);
+      termEl.appendChild(cursor);
+      termEl.scrollTop = termEl.scrollHeight;
+      i++;
+      setTimeout(nextLine, data.lines[i - 1].t === "gap" ? 40 : 55);
+    }
+    nextLine();
+  }
+
+  buttons.forEach(function (b) {
+    b.addEventListener("click", function () {
+      render(b.getAttribute("data-cmd"));
+    });
+  });
+
+  render("list");
+})();
+</script>
+
+</body>
+</html>

@@ -1,7 +1,8 @@
 """Phase 2 step 2: cdss.dsl parses a YAML check document into a typed model,
 then validates it against the semantic catalog (F2 -- every view/column/join
-referenced must exist) and the stub action registry. Structural (JSON Schema)
-validation is step 1's schema, re-used here, never re-implemented.
+referenced must exist) and the curated action library (Phase 4 step 1).
+Structural (JSON Schema) validation is step 1's schema, re-used here, never
+re-implemented.
 
 All catalog fixtures below are entirely synthetic -- fabricated view/column
 names -- and must never be mistaken for real INDICI_BI_Full data.
@@ -16,8 +17,8 @@ import jsonschema
 import pytest
 import yaml
 
+from cdss.action_library import KNOWN_ACTIONS
 from cdss.dsl import (
-    STUB_ACTION_LIBRARY,
     AllNode,
     AnyNode,
     CatalogIndex,
@@ -229,13 +230,13 @@ def test_valid_check_validates_against_matching_catalog() -> None:
     validate_check_against_catalog(doc, catalog)  # must not raise
 
 
-def test_all_six_checked_in_examples_are_internally_consistent_stub_actions() -> None:
-    # Every action any example uses must be in the stub registry -- proves the
-    # registry wasn't seeded with an incomplete or drifted list.
+def test_all_six_checked_in_examples_are_internally_consistent_known_actions() -> None:
+    # Every action any example uses must be in the curated action library --
+    # proves the library wasn't seeded with an incomplete or drifted list.
     for path in sorted(EXAMPLES_DIR.glob("*.yaml")):
         doc = parse_check_document(path.read_text(encoding="utf-8"))
         for action in doc.actions:
-            assert action in STUB_ACTION_LIBRARY, f"{path.name} uses undeclared action {action}"
+            assert action in KNOWN_ACTIONS, f"{path.name} uses undeclared action {action}"
 
 
 def test_unknown_entity_view_is_refused_naming_it() -> None:

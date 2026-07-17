@@ -41,23 +41,23 @@ _EXAMPLES: dict[str, tuple[dict[str, object], dict[str, int]]] = {
     ),
     "appointment-invalid-status-code": (
         {},
-        {"rows_examined": 10, "n_pass": 8, "n_fail": 1, "n_indeterminate": 1},
+        {"rows_examined": 29, "n_pass": 21, "n_fail": 5, "n_indeterminate": 3},
     ),
     "invoice-negative-total-amount": (
         {},
-        {"rows_examined": 6, "n_fail": 1, "n_pass": 4, "n_indeterminate": 1},
+        {"rows_examined": 17, "n_fail": 1, "n_pass": 15, "n_indeterminate": 1},
     ),
     "invoice-stale-unpaid-balance": (
         {"stale_days": 60},
-        {"rows_examined": 5, "n_fail": 2, "n_pass": 2, "n_indeterminate": 1},
+        {"rows_examined": 16, "n_fail": 2, "n_pass": 13, "n_indeterminate": 1},
     ),
     "patient-active-missing-nhi": (
         {},
-        {"rows_examined": 5, "n_fail": 2, "n_pass": 2, "n_indeterminate": 1},
+        {"rows_examined": 6, "n_fail": 2, "n_pass": 3, "n_indeterminate": 1},
     ),
     "patient-no-recent-appointment": (
         {"recall_window_days": 365},
-        {"rows_examined": 4, "n_fail": 1, "n_pass": 2, "n_indeterminate": 1},
+        {"rows_examined": 5, "n_fail": 1, "n_pass": 3, "n_indeterminate": 1},
     ),
 }
 

@@ -89,52 +89,63 @@ def test_appointment_completed_no_invoice_counts(source_conn: AuditedSourceConne
 
 
 def test_appointment_invalid_status_code_counts(source_conn: AuditedSourceConnection) -> None:
+    # Phase 4 step 5 widened the fixture DB with 8 new dbo.Appointments rows
+    # (AppointmentID 12-19) for the LLM-drafted check fixture suite -- this
+    # check's base_filters (IsDeleted = 0 only) sees all of them too.
     check = _make_loaded_check("appointment-invalid-status-code", {})
     result = execute_check(source_conn, check)
     assert result.status == "ok"
-    assert result.rows_examined == 10
-    assert result.n_pass == 8
-    assert result.n_fail == 1
-    assert result.n_indeterminate == 1
+    assert result.rows_examined == 29
+    assert result.n_pass == 21
+    assert result.n_fail == 5
+    assert result.n_indeterminate == 3
 
 
 def test_invoice_negative_total_amount_counts(source_conn: AuditedSourceConnection) -> None:
+    # Phase 4 step 5 added fqb.Invoices row 8 (AppointmentID=17, for
+    # appointment-completed-no-invoice's LLM-drafted fixture) -- visible here
+    # too since this check's base_filters are IsDeleted = 0 only.
     check = _make_loaded_check("invoice-negative-total-amount", {})
     result = execute_check(source_conn, check)
     assert result.status == "ok"
-    assert result.rows_examined == 6
+    assert result.rows_examined == 17
     assert result.n_fail == 1
-    assert result.n_pass == 4
+    assert result.n_pass == 15
     assert result.n_indeterminate == 1
 
 
 def test_invoice_stale_unpaid_balance_counts(source_conn: AuditedSourceConnection) -> None:
+    # Phase 4 steps 5-6 fixture-DB row additions (see above) -- more passes.
     check = _make_loaded_check("invoice-stale-unpaid-balance", {"stale_days": 60})
     result = execute_check(source_conn, check)
     assert result.status == "ok"
-    assert result.rows_examined == 5
+    assert result.rows_examined == 16
     assert result.n_fail == 2
-    assert result.n_pass == 2
+    assert result.n_pass == 13
     assert result.n_indeterminate == 1
 
 
 def test_patient_active_missing_nhi_counts(source_conn: AuditedSourceConnection) -> None:
+    # Phase 4 step 5 added dbo.Patient row 7 (a high-care patient with a
+    # recorded NHI number) for the LLM-drafted care-gap fixture suite --
+    # visible here too since this check's base_filters are IsDeleted = 0 only.
     check = _make_loaded_check("patient-active-missing-nhi", {})
     result = execute_check(source_conn, check)
     assert result.status == "ok"
-    assert result.rows_examined == 5
+    assert result.rows_examined == 6
     assert result.n_fail == 2
-    assert result.n_pass == 2
+    assert result.n_pass == 3
     assert result.n_indeterminate == 1
 
 
 def test_patient_no_recent_appointment_counts(source_conn: AuditedSourceConnection) -> None:
+    # Phase 4 step 5 fixture-DB row 7 addition (see above) -- one more pass.
     check = _make_loaded_check("patient-no-recent-appointment", {"recall_window_days": 365})
     result = execute_check(source_conn, check)
     assert result.status == "ok"
-    assert result.rows_examined == 4
+    assert result.rows_examined == 5
     assert result.n_fail == 1
-    assert result.n_pass == 2
+    assert result.n_pass == 3
     assert result.n_indeterminate == 1
 
 

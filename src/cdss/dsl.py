@@ -1,6 +1,7 @@
 """Phase 2 step 2: parse a YAML check document into a typed model, then
 validate it against the semantic catalog (F2 -- every referenced view/
-column/join/param/action must be known) and the stub action registry.
+column/join/param/action must be known) and the curated action library
+(Phase 4 step 1, `cdss.action_library`).
 
 Structural validation is entirely owned by `check-dsl.schema.json` (step 1)
 -- this module never re-implements shape rules, only builds a typed model
@@ -30,20 +31,9 @@ import yaml
 from sqlglot import exp
 from sqlglot.errors import ParseError
 
-SCHEMA_PATH = Path(__file__).parent / "schemas" / "check-dsl.schema.json"
+from cdss.action_library import KNOWN_ACTIONS
 
-# Phase 4 builds the real curated action library (the F8 narration
-# allowlist's action-code source); this stub only recognizes the actions the
-# Phase 2 step 1 example checks actually use -- never invented ahead of need.
-STUB_ACTION_LIBRARY: frozenset[str] = frozenset(
-    {
-        "verify-invoice",
-        "raise-billing-task",
-        "request-nhi-lookup",
-        "flag-for-data-steward-review",
-        "raise-recall-task",
-    }
-)
+SCHEMA_PATH = Path(__file__).parent / "schemas" / "check-dsl.schema.json"
 
 _PARAM_REF = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*)\}")
 
@@ -278,15 +268,20 @@ def _validate_expression(
     _require_known_columns(expr, default_view, catalog)
 
 
-def _collect_joined_views(node: PredicateNode, out: set[str]) -> None:
+def collect_joined_views(node: PredicateNode, out: set[str]) -> None:
+    """Walks a predicate tree, adding every `exists`/`not_exists` clause's
+    `view` to `out` -- every view a check's compiled SQL references besides
+    its own driving view (`doc.entity.view`). Public: callers computing a
+    check's full `affected_views` (SQL-guard allowlist scoping, fixture-DB
+    coverage, ...) need this, not just this module's own F2 validation."""
     if isinstance(node, AllNode):
         for child in node.all:
-            _collect_joined_views(child, out)
+            collect_joined_views(child, out)
     elif isinstance(node, AnyNode):
         for child in node.any:
-            _collect_joined_views(child, out)
+            collect_joined_views(child, out)
     elif isinstance(node, NotNode):
-        _collect_joined_views(node.not_, out)
+        collect_joined_views(node.not_, out)
     elif isinstance(node, ExistsNode):
         out.add(node.exists.view)
     elif isinstance(node, NotExistsNode):
@@ -343,7 +338,7 @@ def validate_check_against_catalog(doc: CheckDoc, catalog: CatalogIndex) -> None
     _validate_predicate_tree(doc.predicate, doc.entity.view, catalog, known_params)
 
     joined_views: set[str] = set()
-    _collect_joined_views(doc.predicate, joined_views)
+    collect_joined_views(doc.predicate, joined_views)
 
     for column in doc.evidence:
         on_driving_view = catalog.has_column(doc.entity.view, column)
@@ -354,12 +349,11 @@ def validate_check_against_catalog(doc: CheckDoc, catalog: CatalogIndex) -> None
             )
 
     for action in doc.actions:
-        if action not in STUB_ACTION_LIBRARY:
+        if action not in KNOWN_ACTIONS:
             raise CheckReferenceError(f"unknown action '{action}'")
 
 
 __all__ = [
-    "STUB_ACTION_LIBRARY",
     "AllNode",
     "AnyNode",
     "CatalogIndex",
@@ -375,6 +369,7 @@ __all__ = [
     "ParamDefault",
     "PredicateNode",
     "check_doc_from_dict",
+    "collect_joined_views",
     "parse_check_document",
     "validate_check_against_catalog",
 ]

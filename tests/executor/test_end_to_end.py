@@ -32,6 +32,12 @@ EXAMPLES_DIR = Path(__file__).parent.parent.parent / "examples" / "checks"
 _ALLOWED_OBJECTS = frozenset({"dbo.appointments", "dbo.invoices", "fqb.invoices", "dbo.patient"})
 
 # name -> (params, expected counts)
+# Phase 4 step 5 widened the fixture DB (new dbo.Appointments/dbo.Patient/
+# fqb.Invoices rows for the LLM-drafted check fixture suite) -- every check
+# below whose base_filters don't exclude those new rows now examines more of
+# them; appointment-completed-no-invoice is unaffected (its own IsDummy = 0
+# base filter excludes every new dbo.Appointments row, all of which use
+# IsDummy = 1).
 _EXAMPLES: dict[str, tuple[dict[str, object], dict[str, int]]] = {
     "appointment-completed-no-invoice": (
         {"invoice_lag_days": 7},
@@ -39,23 +45,23 @@ _EXAMPLES: dict[str, tuple[dict[str, object], dict[str, int]]] = {
     ),
     "appointment-invalid-status-code": (
         {},
-        {"rows_examined": 10, "n_pass": 8, "n_fail": 1, "n_indeterminate": 1},
+        {"rows_examined": 29, "n_pass": 21, "n_fail": 5, "n_indeterminate": 3},
     ),
     "invoice-negative-total-amount": (
         {},
-        {"rows_examined": 6, "n_fail": 1, "n_pass": 4, "n_indeterminate": 1},
+        {"rows_examined": 17, "n_fail": 1, "n_pass": 15, "n_indeterminate": 1},
     ),
     "invoice-stale-unpaid-balance": (
         {"stale_days": 60},
-        {"rows_examined": 5, "n_fail": 2, "n_pass": 2, "n_indeterminate": 1},
+        {"rows_examined": 16, "n_fail": 2, "n_pass": 13, "n_indeterminate": 1},
     ),
     "patient-active-missing-nhi": (
         {},
-        {"rows_examined": 5, "n_fail": 2, "n_pass": 2, "n_indeterminate": 1},
+        {"rows_examined": 6, "n_fail": 2, "n_pass": 3, "n_indeterminate": 1},
     ),
     "patient-no-recent-appointment": (
         {"recall_window_days": 365},
-        {"rows_examined": 4, "n_fail": 1, "n_pass": 2, "n_indeterminate": 1},
+        {"rows_examined": 5, "n_fail": 1, "n_pass": 3, "n_indeterminate": 1},
     ),
 }
 
@@ -191,7 +197,7 @@ def test_drifted_check_is_skipped_but_the_run_continues(
         conn, source_conn, run_id, healthy_check, "fqb.Invoices", healthy_pinned, 1
     )
     assert healthy_result.status == "ok"
-    assert healthy_result.rows_examined == 6
+    assert healthy_result.rows_examined == 17
 
     execution_rows = conn.execute(
         sa.text("SELECT status FROM check_executions WHERE run_id = :run_id"), {"run_id": run_id}

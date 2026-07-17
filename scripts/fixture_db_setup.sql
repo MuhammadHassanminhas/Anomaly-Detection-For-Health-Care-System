@@ -17,6 +17,9 @@ CREATE SCHEMA fqb;
 GO
 
 -- dbo.Appointments -------------------------------------------------------
+-- WaitingForpayment/CancelledTime/Notes/ConsultStartTime: Phase 4 step 5
+-- additions -- real semantic-catalog-v3.json columns the 12 LLM-drafted
+-- checks reference that the original 6-example fixture schema lacked.
 CREATE TABLE dbo.Appointments_Base (
     AppointmentID INT NOT NULL PRIMARY KEY,
     PatientID INT NOT NULL,
@@ -27,7 +30,11 @@ CREATE TABLE dbo.Appointments_Base (
     IsDummy BIT NOT NULL,
     PracticeID INT NOT NULL,
     AppointmentType NVARCHAR(50) NULL,
-    Provider NVARCHAR(50) NULL
+    Provider NVARCHAR(50) NULL,
+    WaitingForpayment DATETIME2 NULL,
+    CancelledTime DATETIME2 NULL,
+    Notes NVARCHAR(500) NULL,
+    ConsultStartTime DATETIME2 NULL
 );
 GO
 CREATE VIEW dbo.Appointments AS SELECT * FROM dbo.Appointments_Base;
@@ -55,6 +62,44 @@ VALUES
     (11, 2,   DATEADD(day, -10, SYSDATETIME()), 1,    'Completed', 0, 1, 100, 'Consult', 'Dr A');  -- recent appt for patient 2 (recall-window join target)
 GO
 
+-- Rows 12-19: Phase 4 step 5 -- fixture scenarios for the LLM-drafted checks
+-- reviewed this phase. IsDummy=1 throughout (same convention as rows 8-10)
+-- so none of these are picked up by appointment-completed-no-invoice.yaml's
+-- own IsDummy=0 base filter.
+INSERT INTO dbo.Appointments_Base
+    (AppointmentID, PatientID, ScheduleDate, AppointmentCompleted, AppointmentStatus, IsDeleted, IsDummy, PracticeID, AppointmentType, Provider, WaitingForpayment, CancelledTime, Notes, ConsultStartTime)
+VALUES
+    -- appointment-activity-left-open / open-activity-with-no-follow-up: fail (On Hold, no wait-for-payment timestamp)
+    (12, 901, DATEADD(day, -40, SYSDATETIME()), NULL, 'On Hold', 0, 1, 100, 'Consult', 'Dr A', NULL, NULL, NULL, DATEADD(day, -5, SYSDATETIME())),
+    -- appointment-activity-left-open: pass (On Hold but already flagged waiting-for-payment)
+    (13, 901, DATEADD(day, -40, SYSDATETIME()), NULL, 'On Hold', 0, 1, 100, 'Consult', 'Dr A', DATEADD(day, -2, SYSDATETIME()), NULL, NULL, DATEADD(day, -5, SYSDATETIME())),
+    -- appointment-activity-left-open / open-activity-with-no-follow-up / uncompleted-appointment-requires-followup: indeterminate (AppointmentStatus NULL, AppointmentCompleted has a value)
+    (14, 901, DATEADD(day, -40, SYSDATETIME()), 1,    NULL,       0, 1, 100, 'Consult', 'Dr A', NULL, NULL, NULL, DATEADD(day, -5, SYSDATETIME())),
+    -- uncompleted-appointment-requires-followup: fail (Cancelled)
+    (15, 901, DATEADD(day, -40, SYSDATETIME()), NULL, 'Cancelled', 0, 1, 100, 'Consult', 'Dr A', NULL, DATEADD(day, -1, SYSDATETIME()), NULL, NULL),
+    -- missing-notes-on-completed-appointment / appointment-completed-no-invoice (LLM): fail (completed, no notes, no invoice)
+    (16, 901, DATEADD(day, -40, SYSDATETIME()), 1,    'Appointment Completed', 0, 1, 100, 'Consult', 'Dr A', NULL, NULL, NULL, NULL),
+    -- missing-notes-on-completed-appointment / appointment-completed-no-invoice (LLM): pass (completed, has notes, has invoice below)
+    (17, 901, DATEADD(day, -40, SYSDATETIME()), 1,    'Appointment Completed', 0, 1, 100, 'Consult', 'Dr A', NULL, NULL, 'Patient discussed treatment plan.', NULL),
+    -- missing-notes-on-completed-appointment / appointment-completed-no-invoice (LLM): indeterminate (AppointmentCompleted NULL)
+    (18, 901, DATEADD(day, -40, SYSDATETIME()), NULL, NULL,       0, 1, 100, 'Consult', 'Dr A', NULL, NULL, NULL, NULL),
+    -- high-risk-patient-no-follow-up / no-recent-appointment-high-needs-patient / no-appointment-overdue-follow-up: pass (recent appt for patient 7)
+    (19, 7,   DATEADD(day, -10, SYSDATETIME()), 1,    'Completed', 0, 1, 100, 'Consult', 'Dr A', NULL, NULL, NULL, NULL),
+    -- open-activity-with-no-follow-up: pass (has a consult-start timestamp, status matches neither On Hold nor Waiting for Payment)
+    (20, 901, DATEADD(day, -40, SYSDATETIME()), 1,    'Completed', 0, 1, 100, 'Consult', 'Dr A', NULL, NULL, NULL, DATEADD(day, -3, SYSDATETIME()));
+GO
+
+-- Rows 21-30: Phase 4 step 6 (cdss.calibration) -- 10 completed appointments
+-- under a dedicated PracticeID (200) linked 1:1 to fqb.Invoices rows 9-18
+-- below with a controlled, known lag in days (n=1..10) -- gives
+-- appointment_to_invoice_lag a hand-computable expectation (median of
+-- 1..10 = 5.5) for at least MIN_SAMPLE_SIZE (10) observations.
+INSERT INTO dbo.Appointments_Base
+    (AppointmentID, PatientID, ScheduleDate, AppointmentCompleted, AppointmentStatus, IsDeleted, IsDummy, PracticeID, AppointmentType, Provider)
+SELECT 20 + n, 901, DATEADD(day, -100, SYSDATETIME()), 1, 'Completed', 0, 1, 200, 'Consult', 'Dr A'
+FROM (VALUES (1), (2), (3), (4), (5), (6), (7), (8), (9), (10)) AS numbers(n);
+GO
+
 -- dbo.Invoices (not_exists join target for appointment-completed-no-invoice) --
 CREATE TABLE dbo.Invoices_Base (
     AppointmentID INT NOT NULL,
@@ -69,6 +114,9 @@ INSERT INTO dbo.Invoices_Base (AppointmentID, IsActive) VALUES
 GO
 
 -- fqb.Invoices -------------------------------------------------------------
+-- AppointmentID: Phase 4 step 5 addition -- a real semantic-catalog-v3.json
+-- column appointment-completed-no-invoice (LLM-drafted) joins on, absent
+-- from the original 6-example fixture schema.
 CREATE TABLE fqb.Invoices_Base (
     InvoiceTransactionID INT NOT NULL PRIMARY KEY,
     PatientID INT NOT NULL,
@@ -77,7 +125,8 @@ CREATE TABLE fqb.Invoices_Base (
     TotalAmount DECIMAL(18, 2) NULL,
     PracticeID INT NOT NULL,
     IsDeleted BIT NOT NULL,
-    IsActive BIT NOT NULL
+    IsActive BIT NOT NULL,
+    AppointmentID INT NULL
 );
 GO
 CREATE VIEW fqb.Invoices AS SELECT * FROM fqb.Invoices_Base;
@@ -93,8 +142,31 @@ VALUES
     (6, 1, DATEADD(day, -90, SYSDATETIME()), 50.00,  50.00,  100, 0, 0),  -- pass (negative-total); excluded from stale check: IsActive = 0
     (7, 1, DATEADD(day, -5,  SYSDATETIME()), 30.00,  50.00,  100, 0, 1);  -- pass both checks (stale: not old enough)
 GO
+-- Row 8: Phase 4 step 5 -- the invoice that blocks appointment 17's
+-- not_exists join (appointment-completed-no-invoice, LLM-drafted).
+INSERT INTO fqb.Invoices_Base
+    (InvoiceTransactionID, PatientID, InvoiceDate, UnpaidAmount, TotalAmount, PracticeID, IsDeleted, IsActive, AppointmentID)
+VALUES
+    (8, 1, DATEADD(day, -40, SYSDATETIME()), 0.00, 100.00, 100, 0, 1, 17);
+GO
+-- Rows 9-18: Phase 4 step 6 (cdss.calibration) -- one invoice per row-21-30
+-- appointment above, InvoiceDate offset by n days from that appointment's
+-- fixed ScheduleDate, giving appointment_to_invoice_lag a lag of exactly n
+-- days per row (n=1..10).
+INSERT INTO fqb.Invoices_Base
+    (InvoiceTransactionID, PatientID, InvoiceDate, UnpaidAmount, TotalAmount, PracticeID, IsDeleted, IsActive, AppointmentID)
+SELECT 8 + n, 1, DATEADD(day, -100 + n, SYSDATETIME()), 0.00, 100.00, 200, 0, 1, 20 + n
+FROM (VALUES (1), (2), (3), (4), (5), (6), (7), (8), (9), (10)) AS numbers(n);
+GO
 
 -- dbo.Patient ----------------------------------------------------------------
+-- HealthCardExpiryDate/EnrollmentExpiryDate: Phase 4 step 5 additions -- real
+-- semantic-catalog-v3.json columns two LLM-drafted checks reference. Left
+-- NULL throughout: both of those checks turned out to be structurally
+-- broken (a self-referential `dbo.Patient.ProfileID = dbo.Patient.ProfileID`
+-- exists clause -- the compiler has no aliasing for a view joined to itself,
+-- so every row gets the same population-wide answer, never a genuine
+-- per-patient fail/pass split) -- see tests/test_fixture_suite.py.
 CREATE TABLE dbo.Patient_Base (
     ProfileID INT NOT NULL PRIMARY KEY,
     FirstName NVARCHAR(50) NULL,
@@ -106,7 +178,9 @@ CREATE TABLE dbo.Patient_Base (
     IsTestRecord BIT NULL,
     NHINumber NVARCHAR(20) NULL,
     IsHighCare BIT NULL,
-    IsCarePlus BIT NULL
+    IsCarePlus BIT NULL,
+    HealthCardExpiryDate DATE NULL,
+    EnrollmentExpiryDate DATETIME2 NULL
 );
 GO
 CREATE VIEW dbo.Patient AS SELECT * FROM dbo.Patient_Base;
@@ -120,4 +194,13 @@ VALUES
     (4, 'Pat', 'Four',  DATEADD(day, -400, SYSDATETIME()), 100, 0, NULL, 0, NULL,      1, 0),  -- excluded from recall check: IsActive NULL
     (5, 'Pat', 'Five',  NULL,                               100, 0, 1,    0, NULL,      1, 0),  -- fail (missing-nhi); indeterminate (recall, EnrollmentDate NULL)
     (6, 'Pat', 'Six',   DATEADD(day, -400, SYSDATETIME()), 100, 1, 1,    0, NULL,      1, 0);  -- excluded from both: IsDeleted = 1
+GO
+-- Row 7: Phase 4 step 5 -- a high-care patient with a recent appointment
+-- (dbo.Appointments row 19), giving high-risk-patient-no-follow-up /
+-- no-recent-appointment-high-needs-patient / no-appointment-overdue-follow-up
+-- a genuine pass case (rows 1/3/5 already give them a fail case).
+INSERT INTO dbo.Patient_Base
+    (ProfileID, FirstName, FamilyName, EnrollmentDate, PracticeID, IsDeleted, IsActive, IsTestRecord, NHINumber, IsHighCare, IsCarePlus)
+VALUES
+    (7, 'Pat', 'Seven', DATEADD(day, -400, SYSDATETIME()), 100, 0, 1, 0, 'XYZ999', 1, 0);
 GO
