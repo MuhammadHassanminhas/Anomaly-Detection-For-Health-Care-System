@@ -107,13 +107,19 @@ def execute_check(
     *,
     watermark_column: str | None = None,
     scan_window: ScanWindow | None = None,
+    run_id: str | None = None,
 ) -> CheckExecutionResult:
     """Compile `loaded_check`'s definition, bind its params (array elements
     + the practice's resolved scalar overrides) plus the watermark window if
     one is given, execute through `source_conn`, and tri-state-classify
     every returned row. Never raises for a source-execution failure --
     caught and returned as `status='error'` (`check_executions.status`
-    already has this value; one bad check must not abort the run)."""
+    already has this value; one bad check must not abort the run).
+
+    `run_id`, when given, is threaded into `source_conn.execute_query` so
+    the resulting audit event (both the JSONL line and, if an app_db_sink is
+    wired, the `source_audit_log` mirror) carries it -- F10/D-016's "every
+    source statement of a run is audited... with the run id attached"."""
     doc = check_doc_from_dict(loaded_check.definition)
     use_watermark = watermark_column is not None and scan_window is not None
     compiled = compile_check(doc, watermark_column=watermark_column if use_watermark else None)
@@ -131,7 +137,7 @@ def execute_check(
     start = time.perf_counter()
     try:
         rewritten_sql, positional_params = bind_named_params(compiled.sql_text, bind_params)
-        raw_rows = source_conn.execute_query(rewritten_sql, positional_params)
+        raw_rows = source_conn.execute_query(rewritten_sql, positional_params, run_id=run_id)
     except Exception as exc:  # noqa: BLE001 -- deliberately broad: any source
         # failure must degrade to one failed check_execution, never abort
         # the run or propagate to the caller.
@@ -263,11 +269,13 @@ _INSERT_SCHEMA_DRIFT_EVENT_SQL = sa.text(
 )
 
 
-def fetch_live_columns(source_conn: AuditedSourceConnection, view_name: str) -> frozenset[str]:
+def fetch_live_columns(
+    source_conn: AuditedSourceConnection, view_name: str, *, run_id: str | None = None
+) -> frozenset[str]:
     """Live columns for `view_name` ("schema.table") via INFORMATION_SCHEMA
     (D-015 catalog metadata -- always allowed, no view allowlist needed)."""
     schema, _, table = view_name.partition(".")
-    rows = source_conn.execute_query(_SELECT_LIVE_COLUMNS_SQL, [schema, table])
+    rows = source_conn.execute_query(_SELECT_LIVE_COLUMNS_SQL, [schema, table], run_id=run_id)
     return frozenset(row[0] for row in rows)
 
 
@@ -315,7 +323,7 @@ def execute_check_with_preflight(
     preflight (live schema vs. `pinned_columns`) then either skip (drift) or
     execute, always recording a `check_executions` row either way -- a
     drifted check's accounting must not silently vanish from the run."""
-    live_columns = fetch_live_columns(source_conn, driving_view)
+    live_columns = fetch_live_columns(source_conn, driving_view, run_id=run_id)
     missing = compute_missing_columns(pinned_columns, live_columns)
     if missing:
         record_schema_drift_event(
@@ -344,7 +352,11 @@ def execute_check_with_preflight(
         )
     else:
         result = execute_check(
-            source_conn, loaded_check, watermark_column=watermark_column, scan_window=scan_window
+            source_conn,
+            loaded_check,
+            watermark_column=watermark_column,
+            scan_window=scan_window,
+            run_id=run_id,
         )
     record_check_execution(conn, run_id, result)
     return result

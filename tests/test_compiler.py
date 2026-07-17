@@ -281,7 +281,7 @@ def test_array_param_with_empty_default_is_rejected() -> None:
 def test_watermark_column_adds_increment_clause_with_named_params() -> None:
     doc = _doc()
     compiled = compile_check(doc, watermark_column="UpdatedAt")
-    assert "(UpdatedAt > @watermark_from)" in compiled.sql_text
+    assert "(@watermark_from IS NULL OR UpdatedAt > @watermark_from)" in compiled.sql_text
     assert "(UpdatedAt <= @watermark_to)" in compiled.sql_text
     assert compiled.params_schema["watermark_from"] == "datetime"
     assert compiled.params_schema["watermark_to"] == "datetime"

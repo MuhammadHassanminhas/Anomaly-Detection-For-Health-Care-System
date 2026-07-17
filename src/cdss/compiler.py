@@ -199,7 +199,13 @@ def compile_check(doc: CheckDoc, *, watermark_column: str | None = None) -> Comp
     }
     params_schema.update(array_expanded_schema)
     if watermark_column is not None:
-        where_clauses.append(f"({watermark_column} > @watermark_from)")
+        # @watermark_from binds to SQL NULL on a first run (no persisted
+        # watermark yet -- watermark_manager.compute_watermarked_window's
+        # "no lower bound at all" case). `col > NULL` is never TRUE in T-SQL,
+        # so a bare comparison would silently return zero rows instead of a
+        # full scan; the `IS NULL` branch makes the lower bound a genuine
+        # no-op when unset, matching the documented first-run semantics.
+        where_clauses.append(f"(@watermark_from IS NULL OR {watermark_column} > @watermark_from)")
         where_clauses.append(f"({watermark_column} <= @watermark_to)")
         params_schema["watermark_from"] = "datetime"
         params_schema["watermark_to"] = "datetime"

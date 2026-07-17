@@ -188,6 +188,36 @@ def test_watermark_column_without_scan_window_is_not_applied(
     assert result.watermark_to is None
 
 
+def test_watermark_first_run_no_lower_bound_is_a_full_scan_live(
+    source_conn: AuditedSourceConnection,
+) -> None:
+    """Regression test: a genuine first run has `scan_window.from_ts=None`
+    (`watermark_manager.compute_watermarked_window`'s documented "no lower
+    bound at all"). `compile_check` used to emit a bare `col > @watermark_from`
+    comparison, which is never TRUE against a NULL-bound parameter in T-SQL --
+    a first run silently returned zero rows instead of the intended full
+    scan. Caught live while proving Phase 3's exit criterion 3; fixed in
+    `compile_check` with an `IS NULL`-guarded lower bound.
+
+    Expected count is 5, not the unwatermarked baseline's 6: appointment 6
+    has `ScheduleDate IS NULL` (a deliberate fixture case, "indeterminate:
+    ScheduleDate NULL"), and `ScheduleDate <= @watermark_to` is NULL, not
+    TRUE, for a NULL `ScheduleDate` regardless of the lower-bound fix -- a
+    row whose watermark column is itself NULL is inherently invisible to any
+    watermark-scoped window. That is a real, separate property of
+    watermarking generally (not something this fix introduced or resolves);
+    noted here so it isn't mistaken for a leftover bug."""
+    check = _make_loaded_check("appointment-completed-no-invoice", {"invoice_lag_days": 7})
+    scan_window = ScanWindow(from_ts=None, to_ts=datetime(2126, 1, 1, tzinfo=UTC))
+
+    result = execute_check(
+        source_conn, check, watermark_column="ScheduleDate", scan_window=scan_window
+    )
+
+    assert result.status == "ok"
+    assert result.rows_examined == 5
+
+
 def test_execution_error_is_captured_not_raised(tmp_path: Path) -> None:
     class _BrokenCursor:
         def execute(self, statement: str, params: object = None) -> None:
