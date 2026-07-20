@@ -256,7 +256,7 @@ def test_dismissed_finding_stays_dismissed_but_reseen_event_recorded(conn: sa.Co
     conn.execute(
         sa.text(
             "INSERT INTO finding_events (finding_id, event, reason_code) "
-            "VALUES (:id, 'dismissed', 'not-an-issue')"
+            "VALUES (:id, 'dismissed', 'not_genuine')"
         ),
         {"id": finding_id},
     )

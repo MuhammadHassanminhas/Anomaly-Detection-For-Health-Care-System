@@ -125,8 +125,28 @@ def test_finding_events_dismissed_with_reason_code_accepted(conn: sa.Connection)
     conn.execute(
         sa.text(
             "INSERT INTO finding_events (finding_id, event, reason_code) "
-            "VALUES (:fid, 'dismissed', 'not_an_issue')"
+            "VALUES (:fid, 'dismissed', 'genuine_issue')"
         ),
+        {"fid": finding_id},
+    )
+
+
+def test_finding_events_reason_code_rejects_unknown_value(conn: sa.Connection) -> None:
+    finding_id = _seed_finding(conn)
+    with pytest.raises(sa.exc.IntegrityError):
+        conn.execute(
+            sa.text(
+                "INSERT INTO finding_events (finding_id, event, reason_code) "
+                "VALUES (:fid, 'dismissed', 'not_an_issue')"
+            ),
+            {"fid": finding_id},
+        )
+
+
+def test_finding_events_reopened_accepted(conn: sa.Connection) -> None:
+    finding_id = _seed_finding(conn)
+    conn.execute(
+        sa.text("INSERT INTO finding_events (finding_id, event) VALUES (:fid, 'reopened')"),
         {"fid": finding_id},
     )
 

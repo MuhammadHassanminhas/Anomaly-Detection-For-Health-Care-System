@@ -1,9 +1,12 @@
 # PHI boundary — what leaves the process, per tier
 
 Phase 5 step 6 deliverable: the constraint-5 evidence package for D-003
-sign-off (`DECISIONS.md`, still **OPEN**). This document is evidence for
-that decision, not the decision itself — D-003 is signed off by the
-product owner updating `DECISIONS.md`, not by this file existing.
+sign-off. **D-003 is now DECIDED (2026-07-20, `DECISIONS.md`)** — the
+product owner adopted Tier S/Tier M exactly as proposed below, including
+the default on the open sub-question (practice/provider names treated as
+PHI-equivalent). This document remains the evidence trail for that
+decision, not the decision record itself — see `DECISIONS.md` D-003 for
+the actual sign-off.
 
 Two tiers carry data to an LLM anywhere in CDSS (D-003's proposed policy,
 `ARCHITECTURE.md` §2.6). Both sit behind `CDSS_REDACTION_MODE`
@@ -79,5 +82,6 @@ that the real catalog happens to leave them null).
   boundary; a fresh boundary-proof suite is that phase's own job when it
   lands, not inherited automatically from this one.
 - Whether practice/provider names count as PHI-equivalent for this
-  deployment — an open question D-003 itself names, for the product owner
-  to answer, not assumed here either way.
+  deployment — resolved by D-003's sign-off (2026-07-20): treated as
+  restricted, pseudonymized in Tier M contexts, the recommendation's own
+  stated default, adopted as-is.

@@ -38,9 +38,13 @@ results, via `cdss.indeterminacy.build_indeterminacy_check_result`.
 **`enabled`/`demoted` split**: `cdss.check_registry.load_active_checks`
 only enforces F3 (`status='active'`); a `practice_check_config.enabled=False`
 row is check_registry's business to load (a caller might want to see it) but
-this run loop's business to skip executing. A `demoted` check still runs
-normally -- demotion (F5, Phase 6) affects how its findings should later be
-weighted/surfaced, not whether the check executes.
+this run loop's business to skip executing -- same now true of `demoted`
+(Phase 6 step 3, F5): a demoted (practice, check) pair is excluded from
+`target_checks` exactly like a disabled one, for that practice only -- the
+check still runs normally for every other practice where it isn't demoted.
+Corrected from this docstring's earlier (Phase 6 step-2-era) claim that a
+demoted check "still runs normally" -- that was true only because step 3
+(the thing that makes it stop) hadn't been built yet.
 """
 
 from __future__ import annotations
@@ -67,6 +71,7 @@ from cdss.executor import (
     finish_run,
 )
 from cdss.executor import create_run as _create_run
+from cdss.feedback import ReasonCodeDistributionEntry, compute_reason_code_distribution
 from cdss.indeterminacy import ENTITY_KEY_COLUMNS as _INDETERMINACY_ENTITY_KEY_COLUMNS
 from cdss.indeterminacy import build_indeterminacy_check_result
 from cdss.materialize import CreatedFinding, MaterializationStats, materialize_check_result
@@ -147,6 +152,12 @@ class RunReport:
     finished_at: datetime
     summaries: tuple[CheckRunSummary, ...]
     ask_recommendations: tuple[str, ...]
+    # Phase 6 step 5: all-time (not run-scoped) genuine_issue/not_genuine
+    # split per check -- D-029 scoped this down from the spec's own
+    # data_entry_lag/policy_difference-specific text, since neither code
+    # exists in the real REASON_CODES vocabulary (step 1). Defaulted so
+    # every pre-existing RunReport(...) construction site is unaffected.
+    reason_code_distribution: tuple[ReasonCodeDistributionEntry, ...] = ()
 
 
 _SELECT_CATALOG_VERSION_SQL = sa.text("SELECT id FROM catalog_versions WHERE sha256 = :sha256")
@@ -349,7 +360,9 @@ def run_once(
     run_id = _create_run(conn)
     cache = narration_cache if narration_cache is not None else TemplateCache()
 
-    target_checks = [c for c in checks if c.slug not in system_check_slugs and c.enabled]
+    target_checks = [
+        c for c in checks if c.slug not in system_check_slugs and c.enabled and not c.demoted
+    ]
     system_checks = {c.practice_id: c for c in checks if c.slug in system_check_slugs and c.enabled}
 
     summaries: list[CheckRunSummary] = []
@@ -422,6 +435,7 @@ def run_once(
         finished_at=datetime.now(UTC),
         summaries=tuple(summaries),
         ask_recommendations=tuple(ask_recommendations),
+        reason_code_distribution=compute_reason_code_distribution(conn),
     )
 
 
@@ -444,7 +458,7 @@ def render_cost_report(report: RunReport) -> str:
     ]
     for s in report.summaries:
         span = (
-            f"{s.watermark_from.isoformat() if s.watermark_from else '(none)'} → "
+            f"{s.watermark_from.isoformat() if s.watermark_from else '(none)'} -> "
             f"{s.watermark_to.isoformat()}"
             if s.watermark_to is not None
             else "—"
@@ -492,6 +506,21 @@ def render_cost_report(report: RunReport) -> str:
         )
     else:
         lines.append("(no new findings narrated this run)")
+
+    # Phase 6 step 5 (D-029-scoped): all-time genuine_issue/not_genuine
+    # split per check, not run-scoped -- a check dismissed mostly
+    # `not_genuine` is a calibration/design candidate to flag for review,
+    # not something this report decides on its own.
+    lines += ["", "## Reason-Code Distribution (all-time)", ""]
+    if report.reason_code_distribution:
+        lines.append("| Check | genuine_issue | not_genuine |")
+        lines.append("|---|---|---|")
+        for entry in report.reason_code_distribution:
+            lines.append(
+                f"| {entry.slug} | {entry.genuine_issue_count} | {entry.not_genuine_count} |"
+            )
+    else:
+        lines.append("(no reason-coded dismissals recorded yet)")
 
     lines += ["", "## ASK recommendations", ""]
     if report.ask_recommendations:
@@ -591,6 +620,7 @@ def main() -> int:
         app_engine.dispose()
 
     path = write_cost_report(report)
+    print(render_cost_report(report))
     print(f"Run {report.run_id}: {len(report.summaries)} check executions")
     print(f"Wrote {path}")
     return 0

@@ -18,6 +18,7 @@ import sqlalchemy as sa
 import yaml
 
 from cdss.check_registry import load_active_checks
+from cdss.feedback import ReasonCodeDistributionEntry, dismiss
 from cdss.materialize import MaterializationStats
 from cdss.run import (
     CheckRunSummary,
@@ -158,7 +159,9 @@ def source_conn(fixture_conn: pyodbc.Connection, tmp_path: Path) -> AuditedSourc
 # --- pure: report rendering -------------------------------------------------
 
 
-def _synthetic_report() -> RunReport:
+def _synthetic_report(
+    *, reason_code_distribution: tuple[ReasonCodeDistributionEntry, ...] = ()
+) -> RunReport:
     summary = CheckRunSummary(
         slug="example-check",
         practice_id="practice-1",
@@ -180,6 +183,7 @@ def _synthetic_report() -> RunReport:
         finished_at=datetime(2026, 1, 1, 0, 1, tzinfo=UTC),
         summaries=(summary,),
         ask_recommendations=("dbo.Hot: hot and unwatermarkable -- recommend an ASK-NNN",),
+        reason_code_distribution=reason_code_distribution,
     )
 
 
@@ -197,6 +201,24 @@ def test_render_cost_report_includes_every_check_and_ask_recommendation() -> Non
     # Phase 5 step 7: narration stats surface per-check and as a run total.
     assert "Narratives (composed/cached/blocked/fallback)" in text
     assert "1 composed, 1 cached, 0 blocked (validator-rejected), 0 fallback" in text
+
+
+def test_render_cost_report_includes_reason_code_distribution() -> None:
+    report = _synthetic_report(
+        reason_code_distribution=(
+            ReasonCodeDistributionEntry(
+                check_id="c1", slug="example-check", genuine_issue_count=3, not_genuine_count=7
+            ),
+        )
+    )
+    text = render_cost_report(report)
+    assert "## Reason-Code Distribution (all-time)" in text
+    assert "| example-check | 3 | 7 |" in text
+
+
+def test_render_cost_report_no_reason_code_distribution_says_none() -> None:
+    text = render_cost_report(_synthetic_report())
+    assert "(no reason-coded dismissals recorded yet)" in text
 
 
 def test_render_cost_report_no_ask_recommendations_says_none() -> None:
@@ -282,6 +304,83 @@ def test_run_once_second_run_creates_no_duplicate_findings(
     count_after_second = conn.execute(sa.text("SELECT COUNT(*) FROM findings")).scalar()
 
     assert count_after_second == count_after_first
+
+
+def test_run_once_skips_demoted_check_for_that_practice_only(
+    conn: sa.Connection, source_conn: AuditedSourceConnection
+) -> None:
+    """Phase 6 step 3 (F5 auto-demotion): a demoted (practice, check) pair
+    is excluded from `target_checks` -- the executor-skip proof the phase
+    spec's own step 3 deliverable names. A *different* practice with no
+    demotion on its own `practice_check_config` row still runs the same
+    check normally."""
+    _seed_all_examples(conn)
+    demoted_slug = "invoice-negative-total-amount"
+    check_id = str(
+        conn.execute(sa.text("SELECT id FROM checks WHERE slug = :slug"), {"slug": demoted_slug})
+        .one()
+        .id
+    )
+    conn.execute(
+        sa.text("INSERT INTO practices (practice_id, name) VALUES ('practice-2', 'Practice 2')")
+    )
+    conn.execute(
+        sa.text(
+            "INSERT INTO practice_check_config (practice_id, check_id, params) "
+            "VALUES ('practice-2', :check_id, '{}'::jsonb)"
+        ),
+        {"check_id": check_id},
+    )
+    conn.execute(
+        sa.text(
+            "UPDATE practice_check_config SET demoted = true "
+            "WHERE practice_id = 'practice-1' AND check_id = :check_id"
+        ),
+        {"check_id": check_id},
+    )
+
+    checks = load_active_checks(conn)
+    catalog_version_id = get_or_create_catalog_version(
+        conn, sha256="test-hash", source_path="test-path"
+    )
+
+    report = run_once(
+        conn, source_conn, checks, catalog_version_id=catalog_version_id, watermark_plans={}
+    )
+
+    pairs = {(s.slug, s.practice_id) for s in report.summaries}
+    assert (demoted_slug, "practice-1") not in pairs
+    assert (demoted_slug, "practice-2") in pairs
+    for slug in _EXAMPLES:
+        if slug != demoted_slug:
+            assert (slug, "practice-1") in pairs
+    assert len(report.summaries) == 6
+
+
+def test_run_once_report_includes_reason_code_distribution(
+    conn: sa.Connection, source_conn: AuditedSourceConnection
+) -> None:
+    """Phase 6 step 5 (D-029-scoped): the run report surfaces the real,
+    all-time genuine_issue/not_genuine split per check -- wired end to end
+    through `run_once`, not just `render_cost_report`'s own pure test."""
+    _seed_all_examples(conn)
+    checks = load_active_checks(conn)
+    catalog_version_id = get_or_create_catalog_version(
+        conn, sha256="test-hash", source_path="test-path"
+    )
+    run_once(conn, source_conn, checks, catalog_version_id=catalog_version_id, watermark_plans={})
+    finding = conn.execute(
+        sa.text("SELECT f.id, c.slug FROM findings f JOIN checks c ON c.id = f.check_id LIMIT 1")
+    ).one()
+    dismiss(conn, str(finding.id), reason_code="genuine_issue", actor="alice")
+
+    report = run_once(
+        conn, source_conn, checks, catalog_version_id=catalog_version_id, watermark_plans={}
+    )
+
+    entry = next(e for e in report.reason_code_distribution if e.slug == finding.slug)
+    assert entry.genuine_issue_count == 1
+    assert entry.not_genuine_count == 0
 
 
 def test_run_once_evaluates_indeterminacy_per_practice(
