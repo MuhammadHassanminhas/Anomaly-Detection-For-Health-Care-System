@@ -68,12 +68,24 @@ def compute_dedupe_key(check_id: str, entity_key: dict[str, Any]) -> str:
 
 
 @dataclass(frozen=True)
+class CreatedFinding:
+    """One `fail` row that just became a brand-new `findings` row --
+    Phase 5 step 7's own hook: only a genuinely new finding gets narrated
+    inline (`cdss.run`), never a `reseen`/`reopened` recurrence of one
+    already narrated on an earlier run."""
+
+    finding_id: str
+    evidence: dict[str, Any]
+
+
+@dataclass(frozen=True)
 class MaterializationStats:
     created: int = 0
     reseen: int = 0
     reopened: int = 0
     resolved_system: int = 0
     skipped_idempotent: int = 0
+    created_findings: tuple[CreatedFinding, ...] = ()
 
 
 _SELECT_FINDING_SQL = sa.text(
@@ -163,7 +175,12 @@ def materialize_check_result(
                     _INSERT_EVENT_SQL,
                     {"finding_id": finding_id, "event": "created", "run_id": run_id},
                 )
-                stats = replace(stats, created=stats.created + 1)
+                stats = replace(
+                    stats,
+                    created=stats.created + 1,
+                    created_findings=stats.created_findings
+                    + (CreatedFinding(finding_id=str(finding_id), evidence=row.evidence),),
+                )
                 continue
 
             if str(existing.last_seen_run_id) == str(run_id):
@@ -208,6 +225,7 @@ def materialize_check_result(
 
 
 __all__ = [
+    "CreatedFinding",
     "MaterializationStats",
     "canonical_entity_key",
     "compute_dedupe_key",

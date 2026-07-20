@@ -37,6 +37,8 @@ _ACTIVE_CHECKS_SQL = sa.text(
         v.version_number,
         v.definition,
         v.definition_hash,
+        v.rationale,
+        v.fallback_template,
         v.affected_views,
         v.params_schema,
         pcc.practice_id,
@@ -71,6 +73,8 @@ class LoadedCheck:
     demoted: bool
     params: dict[str, Any]
     params_source: str
+    rationale: str | None = None
+    fallback_template: str = ""
 
 
 def load_active_checks(conn: sa.Connection, *, practice_id: str | None = None) -> list[LoadedCheck]:
@@ -93,6 +97,8 @@ def load_active_checks(conn: sa.Connection, *, practice_id: str | None = None) -
             definition_hash=row["definition_hash"],
             affected_views=list(row["affected_views"]),
             params_schema=row["params_schema"],
+            rationale=row["rationale"],
+            fallback_template=row["fallback_template"],
             practice_id=row["practice_id"],
             enabled=row["enabled"],
             demoted=row["demoted"],

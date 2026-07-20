@@ -1,13 +1,15 @@
-"""Phase 5 steps 1-4: the deterministic narration floor (F8), the typed
+"""Phase 5 steps 1-6: the deterministic narration floor (F8), the typed
 placeholder renderer, the validator (F8's actual enforcement point, built
 and tested before any narrator/LLM code existed, per the phase spec's own
-step ordering), and the Tier S narration pipeline (`compose`) that ties
-them together with a real LLM call. A finding is never delayed or lost to
-narration: any LLM-side failure (garbage output, a smuggled value, an
-outage) falls back to the check's own deterministic `fallback_template`
-(step 1) rather than propagating. The template cache and the
-redaction-boundary proof are step 5+'s job
-(`docs/phases/phase-05-explanation-layer.md`).
+step ordering), the Tier S narration pipeline (`compose`) that ties them
+together with a real LLM call, the template cache (F10: LLM calls are
+O(active checks), not O(findings)), and the outbound-prompt recorder that
+proves the redaction boundary (step 6, the constraint-5 evidence package
+for D-003 sign-off, alongside step 3's own adversarial suite). A finding
+is never delayed or lost to narration: any LLM-side failure (garbage
+output, a smuggled value, an outage) falls back to the check's own
+deterministic `fallback_template` (step 1) rather than propagating.
+(`docs/phases/phase-05-explanation-layer.md`)
 """
 
 from __future__ import annotations
@@ -17,10 +19,11 @@ import decimal
 import hashlib
 import json
 import re
-from collections.abc import Mapping, Sequence, Set
+from collections.abc import Callable, Mapping, Sequence, Set
 from dataclasses import dataclass
 from os import environ
-from typing import Any, Literal
+from pathlib import Path
+from typing import Any, Literal, Protocol
 
 import sqlalchemy as sa
 
@@ -489,10 +492,115 @@ class ComposeResult:
     actions: list[str]
 
 
+def evidence_shape_hash(evidence: Mapping[str, Any]) -> str:
+    """A hash of evidence's *shape* -- field name + type, never a value --
+    so two findings of the same check with differently-shaped evidence
+    (e.g. a nullable column present on one, absent/None on another) don't
+    share a cached template that was never validated against that shape."""
+
+    shape = sorted((name, _evidence_type_name(value)) for name, value in evidence.items())
+    return hashlib.sha256(json.dumps(shape).encode("utf-8")).hexdigest()
+
+
+@dataclass(frozen=True)
+class _CachedTemplate:
+    template: str
+    actions: list[str]
+    model_id: str
+    prompt_hash: str
+
+
+class TemplateCache:
+    """F10: LLM calls are O(active checks), not O(findings). Keyed by
+    `(check_version_id, evidence_shape_hash)` per the spec's own literal
+    cache key -- a check-version bump mints a new `check_version_id`, so
+    every prior entry for that check simply stops being looked up; no
+    separate eviction/invalidation logic is needed. Caches only a
+    *successful* composition -- a fallback is never cached, so the next
+    finding of the same shape gets a fresh LLM attempt rather than being
+    stuck replaying a stale failure."""
+
+    def __init__(self) -> None:
+        self._entries: dict[tuple[str, str], _CachedTemplate] = {}
+
+    def _key(self, check_version_id: str, evidence: Mapping[str, Any]) -> tuple[str, str]:
+        return (check_version_id, evidence_shape_hash(evidence))
+
+    def get(self, check_version_id: str, evidence: Mapping[str, Any]) -> _CachedTemplate | None:
+        return self._entries.get(self._key(check_version_id, evidence))
+
+    def put(
+        self, check_version_id: str, evidence: Mapping[str, Any], cached: _CachedTemplate
+    ) -> None:
+        self._entries[self._key(check_version_id, evidence)] = cached
+
+    def __len__(self) -> int:
+        return len(self._entries)
+
+
+# --- step 6: outbound-prompt recorder (the D-003 redaction-boundary proof) --
+
+DEFAULT_PROMPT_AUDIT_DIR = Path("artifacts/prompt_audit")
+
+
+@dataclass(frozen=True)
+class RecordedPrompt:
+    check_version_id: str
+    model_id: str
+    prompt: str
+    prompt_hash: str
+    recorded_at: str
+
+    def to_json(self) -> str:
+        return json.dumps(
+            {
+                "check_version_id": self.check_version_id,
+                "model_id": self.model_id,
+                "prompt": self.prompt,
+                "prompt_hash": self.prompt_hash,
+                "recorded_at": self.recorded_at,
+            }
+        )
+
+
+class PromptRecorder(Protocol):
+    """Same optional-sink shape `cdss.source.AppDbAuditSink` already
+    established: a pluggable destination for one more copy of an event
+    that already happened, never something the caller must supply."""
+
+    def record(self, recorded: RecordedPrompt) -> None: ...
+
+
+class JsonlPromptRecorder:
+    """Dev/test-mode outbound-prompt log (step 6): one JSONL line per real
+    LLM call, so a human (or a test, see `tests/narration/test_redaction_boundary.py`)
+    can audit that no evidence value, entity key, or identifier pattern
+    ever left the process -- never wired into a run by default, only ever
+    a caller-supplied opt-in, same as `cdss.source.AuditedSourceConnection`'s
+    own `app_db_sink` parameter."""
+
+    def __init__(
+        self,
+        audit_dir: Path = DEFAULT_PROMPT_AUDIT_DIR,
+        *,
+        clock: Callable[[], dt.datetime] | None = None,
+    ) -> None:
+        self._audit_dir = audit_dir
+        self._clock = clock or (lambda: dt.datetime.now(dt.UTC))
+
+    def record(self, recorded: RecordedPrompt) -> None:
+        self._audit_dir.mkdir(parents=True, exist_ok=True)
+        date_stamp = self._clock().date().isoformat()
+        path = self._audit_dir / f"prompt-audit-{date_stamp}.jsonl"
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(recorded.to_json() + "\n")
+
+
 def compose(
     client: LLMClient,
     *,
     model_id: str,
+    check_version_id: str,
     definition: Mapping[str, Any],
     rationale: str,
     fallback_template: str,
@@ -500,6 +608,8 @@ def compose(
     params: Mapping[str, Any],
     static_vocabulary: Set[str] = frozenset(),
     env: Mapping[str, str] | None = None,
+    cache: TemplateCache | None = None,
+    recorder: PromptRecorder | None = None,
 ) -> ComposeResult:
     """F8's runtime pipeline: compose a prompt from redacted context, call
     the LLM, render its template against the real evidence/params, then
@@ -508,7 +618,13 @@ def compose(
     `validation_status` distinguishes *why* a fallback happened:
     `fallback_static` for an LLM-side failure (garbage output, malformed
     JSON, a timeout/outage -- nothing to validate), `blocked_fallback` for
-    a real response that the renderer or validator rejected."""
+    a real response that the renderer or validator rejected.
+
+    When `cache` is given, a hit for `(check_version_id, evidence-shape)`
+    skips the LLM call entirely -- the cached template is still re-rendered
+    and re-validated against *this* finding's own evidence/params every
+    time (cheap, deterministic, no LLM cost), it is only the LLM call
+    itself that is memoized (step 5, F10)."""
 
     declared_evidence_fields = set(definition["evidence"])
     action_allowlist = set(definition["actions"])
@@ -525,6 +641,51 @@ def compose(
             actions=[],
         )
 
+    def _render_and_validate(template: str, selected_actions: list[str]) -> ComposeResult | None:
+        """Returns a `'valid'` ComposeResult, or `None` if this template
+        doesn't hold up against *this* evidence/params -- the caller
+        decides what `None` means (fall back, on both the cached and the
+        freshly-composed path)."""
+        try:
+            rendered = render(template, evidence=evidence, params=params).text
+        except UnknownPlaceholderError:
+            return None
+        result = validate(
+            template,
+            rendered,
+            evidence=evidence,
+            params=params,
+            declared_evidence_fields=declared_evidence_fields,
+            action_allowlist=action_allowlist,
+            selected_actions=selected_actions,
+            static_vocabulary=static_vocabulary,
+        )
+        if result.status == "blocked":
+            return None
+        return ComposeResult(
+            template=template,
+            rendered=rendered,
+            model_id=model_id,
+            prompt_hash=None,
+            validation_status="valid",
+            actions=list(selected_actions),
+        )
+
+    if cache is not None:
+        cached = cache.get(check_version_id, evidence)
+        if cached is not None:
+            cached_result = _render_and_validate(cached.template, cached.actions)
+            if cached_result is None:
+                return _fallback("blocked_fallback")
+            return ComposeResult(
+                template=cached_result.template,
+                rendered=cached_result.rendered,
+                model_id=cached.model_id,
+                prompt_hash=cached.prompt_hash,
+                validation_status="valid",
+                actions=cached_result.actions,
+            )
+
     mode = resolve_redaction_mode(env)
     context = build_narration_context(
         rationale=rationale,
@@ -539,6 +700,20 @@ def compose(
     prompt = build_narration_prompt(context)
     prompt_hash = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
 
+    if recorder is not None:
+        # Record the outbound payload regardless of what happens next --
+        # this is what actually left the process, whether the LLM call
+        # that follows succeeds, returns garbage, or times out.
+        recorder.record(
+            RecordedPrompt(
+                check_version_id=check_version_id,
+                model_id=model_id,
+                prompt=prompt,
+                prompt_hash=prompt_hash,
+                recorded_at=dt.datetime.now(dt.UTC).isoformat(),
+            )
+        )
+
     try:
         # The one deliberately broad catch in this module: garbage output,
         # malformed JSON, a network timeout, an outage -- every LLM-side
@@ -549,27 +724,25 @@ def compose(
     except Exception:
         return _fallback("fallback_static")
 
-    try:
-        rendered = render(template, evidence=evidence, params=params).text
-    except UnknownPlaceholderError:
+    fresh_result = _render_and_validate(template, selected_actions)
+    if fresh_result is None:
         return _fallback("blocked_fallback")
 
-    result = validate(
-        template,
-        rendered,
-        evidence=evidence,
-        params=params,
-        declared_evidence_fields=declared_evidence_fields,
-        action_allowlist=action_allowlist,
-        selected_actions=selected_actions,
-        static_vocabulary=static_vocabulary,
-    )
-    if result.status == "blocked":
-        return _fallback("blocked_fallback")
+    if cache is not None:
+        cache.put(
+            check_version_id,
+            evidence,
+            _CachedTemplate(
+                template=template,
+                actions=list(selected_actions),
+                model_id=model_id,
+                prompt_hash=prompt_hash,
+            ),
+        )
 
     return ComposeResult(
-        template=template,
-        rendered=rendered,
+        template=fresh_result.template,
+        rendered=fresh_result.rendered,
         model_id=model_id,
         prompt_hash=prompt_hash,
         validation_status="valid",
@@ -608,11 +781,16 @@ def persist_narrative(conn: sa.Connection, *, finding_id: str, result: ComposeRe
 
 __all__ = [
     "ComposeResult",
+    "DEFAULT_PROMPT_AUDIT_DIR",
+    "JsonlPromptRecorder",
     "NarrationContext",
+    "PromptRecorder",
     "ProvenanceEntry",
+    "RecordedPrompt",
     "RedactionMode",
     "RedactionOffInProductionError",
     "RenderResult",
+    "TemplateCache",
     "TokenKind",
     "UnknownPlaceholderError",
     "ValidationResult",
@@ -621,6 +799,7 @@ __all__ = [
     "build_narration_context",
     "build_narration_prompt",
     "compose",
+    "evidence_shape_hash",
     "parse_narration_response",
     "persist_narrative",
     "render",

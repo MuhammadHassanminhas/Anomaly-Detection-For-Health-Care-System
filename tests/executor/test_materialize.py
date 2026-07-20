@@ -12,6 +12,7 @@ import sqlalchemy as sa
 
 from cdss.executor import CheckExecutionResult, ExecutedRow, create_run
 from cdss.materialize import (
+    CreatedFinding,
     MaterializationStats,
     canonical_entity_key,
     compute_dedupe_key,
@@ -150,6 +151,11 @@ def test_new_fail_row_creates_open_finding_with_created_event(conn: sa.Connectio
     assert str(finding.last_seen_run_id) == run_id
     assert finding.evidence == {"Status": "cancelled"}
     assert _events(conn, finding.id) == ["created"]
+    # Phase 5 step 7's own hook: a genuinely new finding is reported back so
+    # the caller (cdss.run) can narrate it inline, without a second query.
+    assert stats.created_findings == (
+        CreatedFinding(finding_id=str(finding.id), evidence={"Status": "cancelled"}),
+    )
 
 
 def test_reseen_fail_row_bumps_last_seen_and_emits_reseen_event(conn: sa.Connection) -> None:
@@ -183,6 +189,8 @@ def test_reseen_fail_row_bumps_last_seen_and_emits_reseen_event(conn: sa.Connect
     assert finding.status == "open"
     assert str(finding.last_seen_run_id) == run_2
     assert _events(conn, finding.id) == ["created", "reseen"]
+    # a recurrence is never treated as a new finding to narrate again.
+    assert stats.created_findings == ()
 
 
 def test_resolved_system_finding_reopens_on_recurring_fail(conn: sa.Connection) -> None:

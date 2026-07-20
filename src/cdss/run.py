@@ -46,14 +46,16 @@ weighted/surfaced, not whether the check executes.
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
+from os import environ
 from pathlib import Path
 
 import sqlalchemy as sa
 
 from cdss.app_db import load_app_db_url
 from cdss.app_db_repo import SourceAuditLogRepository
+from cdss.authoring.llm_draft import LLMClient, OpenAIClient, load_llm_config
 from cdss.check_registry import LoadedCheck, load_active_checks
 from cdss.config import load_source_config
 from cdss.connection import connect
@@ -67,7 +69,8 @@ from cdss.executor import (
 from cdss.executor import create_run as _create_run
 from cdss.indeterminacy import ENTITY_KEY_COLUMNS as _INDETERMINACY_ENTITY_KEY_COLUMNS
 from cdss.indeterminacy import build_indeterminacy_check_result
-from cdss.materialize import MaterializationStats, materialize_check_result
+from cdss.materialize import CreatedFinding, MaterializationStats, materialize_check_result
+from cdss.narrate import ComposeResult, TemplateCache, compose, persist_narrative
 from cdss.source import AuditedSourceConnection
 from cdss.watermark_manager import (
     ScanWindow,
@@ -104,6 +107,23 @@ WatermarkStrategy = str
 
 
 @dataclass(frozen=True)
+class NarrationStats:
+    """Phase 5 step 7: per-check tally of what happened to each *new*
+    finding's narration attempt -- `composed` (a fresh LLM call produced a
+    valid narrative), `cached` (the template cache, step 5, served it
+    without a call), `blocked` (a real LLM response the validator/renderer
+    rejected -- `blocked_fallback`), `fallback` (the LLM was unreachable or
+    returned garbage -- `fallback_static`). Every new finding lands in
+    exactly one bucket; none are ever skipped (F8: a finding is never lost
+    or delayed by narration)."""
+
+    composed: int = 0
+    cached: int = 0
+    blocked: int = 0
+    fallback: int = 0
+
+
+@dataclass(frozen=True)
 class CheckRunSummary:
     slug: str
     practice_id: str
@@ -117,6 +137,7 @@ class CheckRunSummary:
     watermark_to: datetime | None
     watermark_strategy: WatermarkStrategy
     materialization: MaterializationStats
+    narration: NarrationStats = NarrationStats()
 
 
 @dataclass(frozen=True)
@@ -162,6 +183,50 @@ def _resolve_scan_window(
     return compute_watermarked_window(watermark=last, lookback=watermark_lookback, now=now)
 
 
+def _narrate_created_findings(
+    conn: sa.Connection,
+    check: LoadedCheck,
+    created_findings: Sequence[CreatedFinding],
+    *,
+    narration_client: LLMClient,
+    narration_model_id: str,
+    narration_cache: TemplateCache,
+) -> NarrationStats:
+    """Phase 5 step 7's own deliverable: every *new* finding from this check
+    (never a reseen/reopened recurrence -- `materialize_check_result` only
+    reports genuinely new ones) gets a narrative composed and persisted
+    inline, so `findings` and `narratives` never drift apart. A cache hit is
+    distinguished from a fresh LLM call by checking the cache before calling
+    `compose` -- `compose` itself doesn't report which path it took, only
+    whether the end result is valid."""
+    stats = NarrationStats()
+    for created in created_findings:
+        had_cache_hit = narration_cache.get(check.check_version_id, created.evidence) is not None
+        result: ComposeResult = compose(
+            narration_client,
+            model_id=narration_model_id,
+            check_version_id=check.check_version_id,
+            definition=check.definition,
+            rationale=check.rationale or "",
+            fallback_template=check.fallback_template,
+            evidence=created.evidence,
+            params=check.params,
+            cache=narration_cache,
+        )
+        persist_narrative(conn, finding_id=created.finding_id, result=result)
+        if result.validation_status == "valid":
+            stats = replace(
+                stats,
+                cached=stats.cached + 1 if had_cache_hit else stats.cached,
+                composed=stats.composed + 1 if not had_cache_hit else stats.composed,
+            )
+        elif result.validation_status == "blocked_fallback":
+            stats = replace(stats, blocked=stats.blocked + 1)
+        else:  # "fallback_static"
+            stats = replace(stats, fallback=stats.fallback + 1)
+    return stats
+
+
 def _run_target_check(
     conn: sa.Connection,
     source_conn: AuditedSourceConnection,
@@ -174,6 +239,9 @@ def _run_target_check(
     bounded_scan_lookback: timedelta,
     auto_resolve: bool,
     now: datetime,
+    narration_client: LLMClient | None,
+    narration_model_id: str | None,
+    narration_cache: TemplateCache,
 ) -> tuple[CheckExecutionResult, CheckRunSummary, str | None]:
     doc = check_doc_from_dict(check.definition)
     driving_view = doc.entity.view
@@ -217,6 +285,16 @@ def _run_target_check(
         severity=check.default_severity,
         auto_resolve=auto_resolve,
     )
+    narration = NarrationStats()
+    if narration_client is not None and narration_model_id is not None and stats.created_findings:
+        narration = _narrate_created_findings(
+            conn,
+            check,
+            stats.created_findings,
+            narration_client=narration_client,
+            narration_model_id=narration_model_id,
+            narration_cache=narration_cache,
+        )
     summary = CheckRunSummary(
         slug=check.slug,
         practice_id=check.practice_id,
@@ -230,6 +308,7 @@ def _run_target_check(
         watermark_to=result.watermark_to,
         watermark_strategy="watermarked" if plan.column is not None else "bounded_full_scan",
         materialization=stats,
+        narration=narration,
     )
     return result, summary, ask
 
@@ -247,14 +326,28 @@ def run_once(
     auto_resolve: bool = True,
     system_check_slugs: frozenset[str] = SYSTEM_CHECK_SLUGS,
     now: datetime | None = None,
+    narration_client: LLMClient | None = None,
+    narration_model_id: str | None = None,
+    narration_cache: TemplateCache | None = None,
 ) -> RunReport:
     """One full run: every enabled, non-system `checks` entry executed with
     preflight + materialized, then every system check (F6 indeterminacy
     surfacing) evaluated once per practice against that practice's own
-    target-check results from this same run."""
+    target-check results from this same run.
+
+    Phase 5 step 7: when `narration_client` is given, every genuinely new
+    finding produced this run gets a narrative composed and persisted
+    inline (system-check findings are never narrated -- their `definition`
+    isn't DSL-shaped). Narration is opt-in and defaults off, so callers that
+    don't pass a client (most existing tests, and any run that only cares
+    about execution/materialization) see identical behavior to before this
+    step. `narration_cache` defaults to a fresh `TemplateCache` per call,
+    shared across every check in this run (F10: LLM calls are O(active
+    checks), never O(findings))."""
     watermark_plans = watermark_plans or {}
     moment = now if now is not None else datetime.now(UTC)
     run_id = _create_run(conn)
+    cache = narration_cache if narration_cache is not None else TemplateCache()
 
     target_checks = [c for c in checks if c.slug not in system_check_slugs and c.enabled]
     system_checks = {c.practice_id: c for c in checks if c.slug in system_check_slugs and c.enabled}
@@ -275,6 +368,9 @@ def run_once(
             bounded_scan_lookback=bounded_scan_lookback,
             auto_resolve=auto_resolve,
             now=moment,
+            narration_client=narration_client,
+            narration_model_id=narration_model_id,
+            narration_cache=cache,
         )
         summaries.append(summary)
         if ask is not None:
@@ -342,8 +438,9 @@ def render_cost_report(report: RunReport) -> str:
         "## Per-check results",
         "",
         "| Check | Practice | Status | Strategy | Duration (ms) | Rows examined | Pass | Fail | "
-        "Indeterminate | Watermark span | Findings (new/reseen/reopened/resolved) |",
-        "|---|---|---|---|---|---|---|---|---|---|---|",
+        "Indeterminate | Watermark span | Findings (new/reseen/reopened/resolved) | "
+        "Narratives (composed/cached/blocked/fallback) |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for s in report.summaries:
         span = (
@@ -354,10 +451,12 @@ def render_cost_report(report: RunReport) -> str:
         )
         m = s.materialization
         findings = f"{m.created}/{m.reseen}/{m.reopened}/{m.resolved_system}"
+        n = s.narration
+        narratives = f"{n.composed}/{n.cached}/{n.blocked}/{n.fallback}"
         lines.append(
             f"| {s.slug} | {s.practice_id} | {s.status} | {s.watermark_strategy} | "
             f"{s.duration_ms} | {s.rows_examined} | "
-            f"{s.n_pass} | {s.n_fail} | {s.n_indeterminate} | {span} | {findings} |"
+            f"{s.n_pass} | {s.n_fail} | {s.n_indeterminate} | {span} | {findings} | {narratives} |"
         )
 
     # Exit criterion 5: unwatermarkable-view executions visibly marked with
@@ -381,6 +480,19 @@ def render_cost_report(report: RunReport) -> str:
     else:
         lines.append("(no checks executed)")
 
+    lines += ["", "## Narration", ""]
+    total_composed = sum(s.narration.composed for s in report.summaries)
+    total_cached = sum(s.narration.cached for s in report.summaries)
+    total_blocked = sum(s.narration.blocked for s in report.summaries)
+    total_fallback = sum(s.narration.fallback for s in report.summaries)
+    if total_composed or total_cached or total_blocked or total_fallback:
+        lines.append(
+            f"- {total_composed} composed, {total_cached} cached, "
+            f"{total_blocked} blocked (validator-rejected), {total_fallback} fallback (LLM outage)"
+        )
+    else:
+        lines.append("(no new findings narrated this run)")
+
     lines += ["", "## ASK recommendations", ""]
     if report.ask_recommendations:
         for a in report.ask_recommendations:
@@ -400,6 +512,25 @@ def write_cost_report(report: RunReport, report_dir: Path = DEFAULT_REPORT_DIR) 
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(render_cost_report(report), encoding="utf-8")
     return path
+
+
+class _ForceOutageClient:
+    """Phase 5 step 7's own kill switch (`CDSS_LLM_FORCE_OUTAGE=1`, named in
+    the phase spec's own verification commands): simulates an LLM outage
+    without spending a real API call, so the deterministic fallback path
+    (`compose`'s `fallback_static`) can be proven live against the real
+    production wiring, not just a unit test's `FakeLLMClient`."""
+
+    def complete(self, prompt: str) -> str:
+        raise RuntimeError("CDSS_LLM_FORCE_OUTAGE=1 -- simulated LLM outage")
+
+
+def _build_narration_client(env: Mapping[str, str] | None = None) -> tuple[LLMClient, str]:
+    source = env if env is not None else environ
+    if source.get("CDSS_LLM_FORCE_OUTAGE", "").strip() == "1":
+        return _ForceOutageClient(), "forced-outage"
+    config = load_llm_config(env)
+    return OpenAIClient(config), config.model
 
 
 def main() -> int:
@@ -436,6 +567,7 @@ def main() -> int:
     source_conn = AuditedSourceConnection(
         source_raw, component="run", app_db_sink=SourceAuditLogRepository(app_engine)
     )
+    narration_client, narration_model_id = _build_narration_client()
     try:
         with app_engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
             checks = load_active_checks(conn)
@@ -447,7 +579,12 @@ def main() -> int:
                 conn, sha256="unpinned", source_path="(none)"
             )
             report = run_once(
-                conn, scoped_source_conn, checks, catalog_version_id=catalog_version_id
+                conn,
+                scoped_source_conn,
+                checks,
+                catalog_version_id=catalog_version_id,
+                narration_client=narration_client,
+                narration_model_id=narration_model_id,
             )
     finally:
         source_raw.close()
@@ -465,6 +602,7 @@ if __name__ == "__main__":
 
 __all__ = [
     "CheckRunSummary",
+    "NarrationStats",
     "RunReport",
     "SYSTEM_CHECK_SLUGS",
     "WatermarkPlan",

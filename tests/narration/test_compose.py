@@ -55,6 +55,7 @@ class TimingOutLLMClient:
 def _compose(client: object, **overrides: object) -> ComposeResult:
     kwargs: dict[str, object] = {
         "model_id": "gpt-4o-mini",
+        "check_version_id": "check-version-1",
         "definition": _DEFINITION,
         "rationale": "TotalAmount should never be negative.",
         "fallback_template": _FALLBACK_TEMPLATE,

@@ -33,22 +33,31 @@ def _seed_check_version(
     version_number: int = 1,
     definition: dict[str, object] | None = None,
     params_schema: dict[str, object] | None = None,
+    rationale: str | None = None,
+    fallback_template: str | None = None,
 ) -> str:
+    columns = "check_id, version_number, definition, definition_hash, affected_views, params_schema"
+    values = (
+        ":check_id, :version_number, CAST(:definition AS jsonb), 'hash', "
+        "ARRAY['dbo.vw_test']::text[], CAST(:params_schema AS jsonb)"
+    )
+    params: dict[str, object] = {
+        "check_id": check_id,
+        "version_number": version_number,
+        "definition": json.dumps(definition or {"id": "test-check"}),
+        "params_schema": json.dumps(params_schema or {}),
+    }
+    if rationale is not None:
+        columns += ", rationale"
+        values += ", :rationale"
+        params["rationale"] = rationale
+    if fallback_template is not None:
+        columns += ", fallback_template"
+        values += ", :fallback_template"
+        params["fallback_template"] = fallback_template
     row = conn.execute(
-        sa.text(
-            "INSERT INTO check_versions "
-            "(check_id, version_number, definition, definition_hash, "
-            "affected_views, params_schema) "
-            "VALUES (:check_id, :version_number, CAST(:definition AS jsonb), 'hash', "
-            "ARRAY['dbo.vw_test']::text[], CAST(:params_schema AS jsonb)) "
-            "RETURNING id"
-        ),
-        {
-            "check_id": check_id,
-            "version_number": version_number,
-            "definition": json.dumps(definition or {"id": "test-check"}),
-            "params_schema": json.dumps(params_schema or {}),
-        },
+        sa.text(f"INSERT INTO check_versions ({columns}) VALUES ({values}) RETURNING id"),
+        params,
     ).one()
     return str(row.id)
 
@@ -94,7 +103,7 @@ def _seed_practice_check_config(
 
 def test_load_active_checks_returns_configured_active_check(conn: sa.Connection) -> None:
     check_id = _seed_check(conn, status="active")
-    version_id = _seed_check_version(conn, check_id)
+    version_id = _seed_check_version(conn, check_id, rationale="Why this check exists.")
     practice_id = _seed_practice(conn)
     _seed_practice_check_config(conn, practice_id, check_id, params={"stale_days": 30})
 
@@ -112,6 +121,11 @@ def test_load_active_checks_returns_configured_active_check(conn: sa.Connection)
     assert check.params == {"stale_days": 30}
     assert check.params_source == "default"
     assert check.affected_views == ["dbo.vw_test"]
+    assert check.rationale == "Why this check exists."
+    # fallback_template has no explicit value here -- the migration 0004
+    # server_default backfills it, proving the loader surfaces that value
+    # rather than silently defaulting to an empty string of its own.
+    assert check.fallback_template == "This check has flagged a record for manual review."
 
 
 @pytest.mark.parametrize("status", ("draft", "in_review", "rejected", "retired"))
