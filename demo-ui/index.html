@@ -165,6 +165,11 @@
       </div>
 
       <div class="panel full">
+        <h2>Live LLM narratives — real production data <span class="count" id="narratives-count"></span></h2>
+        <div id="recent-narratives"></div>
+      </div>
+
+      <div class="panel full">
         <h2>Demonstration action</h2>
         <div class="demo-action">
           <button class="btn" id="demo-run-btn">Run live demo scenario</button>
@@ -315,6 +320,19 @@
         { label: "Status", key: "status" },
       ],
       "No executor runs recorded yet."
+    );
+
+    document.getElementById("narratives-count").textContent = "(" + data.recent_narratives.length + ")";
+    document.getElementById("recent-narratives").innerHTML = table(
+      data.recent_narratives,
+      [
+        { label: "Check", key: "slug", mono: true },
+        { label: "Practice", key: "practice_id", mono: true },
+        { label: "Status", key: "validation_status" },
+        { label: "Model", key: "model_id", mono: true },
+        { label: "Narrative (real LLM output)", key: "rendered_text" },
+      ],
+      "No real (non-demo) narratives composed yet — run `uv run python -m cdss.run` against the live source DB."
     );
   }
 

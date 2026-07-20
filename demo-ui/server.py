@@ -186,6 +186,25 @@ def _recent_runs(conn: sa.Connection) -> list[dict[str, Any]]:
     )
 
 
+def _recent_narratives(conn: sa.Connection) -> list[dict[str, Any]]:
+    """Real LLM-composed narrative text -- never the demo/fixture scenario's
+    own data (`f.practice_id NOT LIKE 'demo-%'`), so this always reflects a
+    genuine `cdss.run` production execution against the real source DB."""
+    return _rows(
+        conn.execute(
+            sa.text(
+                "SELECT c.slug, f.practice_id, n.validation_status, n.model_id, "
+                "n.rendered_text, n.created_at "
+                "FROM narratives n "
+                "JOIN findings f ON f.id = n.finding_id "
+                "JOIN checks c ON c.id = f.check_id "
+                "WHERE f.practice_id NOT LIKE 'demo-%' "
+                "ORDER BY n.created_at DESC LIMIT 10"
+            )
+        )
+    )
+
+
 def build_status(engine: sa.Engine) -> dict[str, Any]:
     with engine.connect() as conn:
         return {
@@ -198,6 +217,7 @@ def build_status(engine: sa.Engine) -> dict[str, Any]:
             "reason_code_distribution": _reason_code_distribution(conn),
             "recent_calibration_runs": _recent_calibration_runs(conn),
             "recent_runs": _recent_runs(conn),
+            "recent_narratives": _recent_narratives(conn),
         }
 
 
